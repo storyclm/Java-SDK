@@ -23,7 +23,7 @@ public class App
     	
     	StoryCLMServiceConnector clientConnector=  StoryCLMConnectorsGenerator.GetStoryCLMServiceConnector("client_18", "595a2fb724604e51a1f9e43b808c76c915c2e0f74e8840b384218a0e354f6de6",null);
     	StoryCLMServiceGeneric<Profile> StoryCLMProfileService = clientConnector.GetService(Profile.class, 23);
-		/*StoryCLMProfileService.Delete("58ca82198047e227c41b65c8").GetResult();
+		StoryCLMProfileService.Delete("58ca82198047e227c41b65c8").GetResult();
 		List<Profile> profiles = StoryCLMProfileService.Find(0, 10).GetResult();
 
 		profiles.get(0).Name = "JavaUser222333";
@@ -44,7 +44,7 @@ public class App
     	
     	//*/
 	
-
+/*
 		//возраст меньше или равен 30
 		List<Profile> profiles  = StoryCLMProfileService.Find( "[age][lte][30]", "age", 1, 0, 100).GetResult();
 
@@ -69,7 +69,7 @@ public class App
 		//Выбрать всех с возрастом НЕ в интервале [25,30] и с именами на "S" и "Т"
 		profiles = StoryCLMProfileService.Find( "([age][lt][22][or][age][gt][30])[and]([name][sw][\"S\"][or][name][sw][\"T\"])", "age", 1, 0, 100).GetResult();
 		
-		
+	*/	
     
     }
 }

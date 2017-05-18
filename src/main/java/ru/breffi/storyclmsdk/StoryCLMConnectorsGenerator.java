@@ -46,8 +46,10 @@ public class StoryCLMConnectorsGenerator {
 		 * OkHttpClient - осуществляющий аутентификацию с использнованием указанного AccessTokenManager
 		 * IStoryCLMService - использующий указанный OkHttpClient.Builder для транспорта
     	 */
-    		StoryCLMServiceConnector result = _storyCLMServiceConnectorsMap.getOrDefault(client_id, null);
-    		if (result == null)
+    		
+    		StoryCLMServiceConnector result = null ; //_storyCLMServiceConnectorsMap.getOrDefault(client_id, null);
+    		if(_storyCLMServiceConnectorsMap.containsKey(client_id)) result= _storyCLMServiceConnectorsMap.get(client_id);
+    		else
     		{ 
     			AccessTokenManager accessTokenManager = new AccessTokenManager(client_id, client_secret); 
     			OkHttpClient okHttpClient = getHttpClient(accessTokenManager);

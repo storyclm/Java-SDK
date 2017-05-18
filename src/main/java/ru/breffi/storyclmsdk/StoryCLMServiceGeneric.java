@@ -134,13 +134,13 @@ public class StoryCLMServiceGeneric<T> {
 	 }
 	 
 	
-	 public IAsyncResult<ApiLog[]> Delete(String id){
-		 return new ProxyCallResult<>(service.Delete(tableid, id));
+	 public IAsyncResult<T> Delete(String id){
+		 return new AsyncResult<>(service.Delete(tableid, id), classOfT, gson);
 	 }
 	
 	 
 	 public IAsyncResult<ApiLog[]> Delete(String[] ids){
-		 return new ProxyCallResult<>(service.Delete(tableid, ids));
+		 return new AsyncResult<>(service.Delete(tableid, ids), genericListTypeOfT, gson);
 	 }
 
 	

@@ -66,10 +66,10 @@ public interface IStoryCLMService{
 	 public Call<JsonArray> Find(@Path("tableid") int tableid, String[] ids);
 	 
 	 @DELETE("tables/{tableid}/delete/{id}/")
-	 public Call<ApiLog[]> Delete(@Path("tableid") int tableid, @Path("id") String id);
+	 public Call<JsonObject> Delete(@Path("tableid") int tableid, @Path("id") String id);
 	
 	 @DELETE("tables/{tableid}/deletemany/")
-	 public Call<ApiLog[]> Delete(@Path("tableid") int tableid,  @Query("ids") String[] ids);
+	 public Call<JsonObject> Delete(@Path("tableid") int tableid,  @Query("ids") String[] ids);
 
 
 
