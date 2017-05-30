@@ -7,6 +7,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 
 import Models.Profile;
+import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -62,23 +63,81 @@ public class AppTest
     	ApiTable ptable=null;
     	for(ApiTable t:tables)
     		if (t.name.contains("Profile")) ptable = t;
-    	assertFalse("ТАблица Profile отсутствует у клиента", ptable==null);
+    	assertFalse("Таблица Profile отсутствует у клиента", ptable==null);
     	
     	
     	//Создаем сервис для Profile
     	StoryCLMProfileService = clientConnector.GetService(Profile.class, ptable.id);
     	
-    	
-    	  ////Добавить новую запись в таблицу
+    	long count = StoryCLMProfileService.Count().GetResult();
+    	if (count>0){
+    		List<Profile> oldProfiles = StoryCLMProfileService.FindAllSync(null);
+    		List<String> ids = new ArrayList<String>();
+    		for(Profile p:oldProfiles){
+    			ids.add(p._id);
+    		}
+    		StoryCLMProfileService.Delete(ids.toArray(new String[ids.size()])).GetResult();
+    		count = StoryCLMProfileService.Count().GetResult();
+    		assertEquals("Удаление старых элементов из таблицы не сработало",0,count);
+    	}
+    
+    	List<String> ids = new ArrayList<String>();
+    	////Добавить новую запись в таблицу
         ////Вернет запись с идентификатором
-        Profile profile = StoryCLMProfileService.Insert(CreateProfile()).GetResult();
+    	Profile profile = CreateProfile();
+        profile = StoryCLMProfileService.Insert(profile).GetResult();
+        ids.add(profile._id);
+        count = StoryCLMProfileService.Count().GetResult();
+        assertEquals("Элемент не добавился",1, count);
+        Profile savedProfile = StoryCLMProfileService.Find(profile._id).GetResult(); 
+        assertEquals("Сохраненнный элемент не равен исходному", savedProfile,profile);
+        
+        
+        
         profile = StoryCLMProfileService.Insert(CreateProfile1()).GetResult();
+        ids.add(profile._id);
         profile = StoryCLMProfileService.Insert(CreateProfile2()).GetResult();
+        ids.add(profile._id);
         profile = StoryCLMProfileService.Insert(CreateProfile3()).GetResult();
+        ids.add(profile._id);
+        Profile maxAgeProfile = StoryCLMProfileService.Insert(CreateProfile4()).GetResult();
+        ids.add(maxAgeProfile._id);
+        
+        count = StoryCLMProfileService.Count().GetResult();
+        assertEquals("Элементы не добавились",5, count);
+        
+        List<Profile> savedP = StoryCLMProfileService.Find(ids.toArray(new String[ids.size()])).GetResult();
+        assertEquals("Не все элементы вернул", 5, savedP.size());
+
+        //Агрегаты
+        
+        double avgage = StoryCLMProfileService.Avg("Age", null , double.class).GetResult();
+        assertEquals("Среднее вычисленно не корректно", 23.2,avgage);
+        
+        double maxage = StoryCLMProfileService.Max("Age", null , double.class).GetResult();
+        assertEquals("Max вычисленно не корректно",28d,maxage);
+ 
+        double minage = StoryCLMProfileService.Min("Age", null , double.class).GetResult();
+        assertEquals("Min вычисленно не корректно",22d,minage);
+        
+        double sumage = StoryCLMProfileService.Sum("Age", null , double.class).GetResult();
+        assertEquals("Sum вычисленно не корректно",116d,sumage);
+
+        Profile maxAgeProfileSaved= StoryCLMProfileService.Last( null ,"Age", - 1).GetResult();
+        assertEquals("Last вычисленно не корректно",maxAgeProfile,maxAgeProfileSaved);
+        
+        
+        Profile minCreatedProfile= StoryCLMProfileService.First( null ,"Created", 1).GetResult();
+        assertEquals("First вычисленно не корректно",CreateProfile4(),minCreatedProfile);
+
+        
         ////Добавить коллекцию записей в таблицу
         ////Вернет коллекцию записей с идентификаторами
         List<Profile> profiles = StoryCLMProfileService.InsertMany(CreateProfiles()).GetResult();
 
+        
+        count = StoryCLMProfileService.Count().GetResult();
+        assertEquals("Элементы не добавились",7, count);
         ////Обновить запись в таблице
         ////Перепишет все поля записи кроме идентификаторов
         profiles.add(StoryCLMProfileService.Update(UpdateProfile(profile)).GetResult());
@@ -91,7 +150,7 @@ public class AppTest
 
 
         ////Колличество записей в таблице
-        long count = StoryCLMProfileService.Count().GetResult();
+        count = StoryCLMProfileService.Count().GetResult();
 
      
 
@@ -99,18 +158,9 @@ public class AppTest
         count = StoryCLMProfileService.CountByLog(new Date(0)).GetResult();
 
         ////Получить все записи постранично
-        List<Profile> results = StoryCLMProfileService.Find(0, 100).GetResult();
+        List<Profile> results = StoryCLMProfileService.Find(null, null,null, 0, 100).GetResult();
 
-        //Получить все записи постранично по запросу
-        //Несколько вариантов запроса
-        profile = StoryCLMProfileService.Insert(CreateProfile1()).GetResult();
-        profile = StoryCLMProfileService.Insert(CreateProfile2()).GetResult();
-        profile = StoryCLMProfileService.Insert(CreateProfile3()).GetResult();
-        profile = StoryCLMProfileService.Insert(CreateProfile4()).GetResult();
-    	
-    	
-    	
-    	
+
     	
     	
     	
@@ -131,7 +181,7 @@ public class AppTest
         String id = profile._id;
     	
     	StoryCLMProfileService.Delete("58ca82198047e227c41b65c8").GetResult();
-		profiles = StoryCLMProfileService.Find(0, 10).GetResult();
+		profiles = StoryCLMProfileService.Find(null, null,null, 0, 10).GetResult();
 
 		profiles.get(0).Name = "JavaUser222333";
 		profiles.get(0).Created = new GregorianCalendar(2014, Calendar.FEBRUARY, 11).getTime();
@@ -139,10 +189,19 @@ public class AppTest
 		profiles.get(1).Created = new Date();
 		//profiles.get(1).Created.toLocaleString();
 		StoryCLMProfileService.UpdateMany(new Profile[]{profiles.get(0),profiles.get(1)}).GetResult();
-		List<Profile> profilesNew = StoryCLMProfileService.Find(0, 10).GetResult();
+		List<Profile> profilesNew = StoryCLMProfileService.Find(null, null,null, 0, 10).GetResult();
     	
     	
-        assertTrue( true );
+      ///Удаление
+		List<Profile> oldProfiles = StoryCLMProfileService.FindAllSync(null);
+		ids = new ArrayList<String>();
+		for(Profile p:oldProfiles){
+			ids.add(p._id);
+		}
+		StoryCLMProfileService.Delete(ids.toArray(new String[ids.size()]));
+		count = StoryCLMProfileService.Count().GetResult();
+		assertEquals("Удаление элементов из таблицы не сработало",0,count);
+		
     }
     
     
@@ -208,7 +267,7 @@ public class AppTest
           test.Age = 22;
           test.Gender = true;
           test.Rating = 2.2D;
-          test.Created = new Date();
+          test.Created = new Date(0);
           return test;
     }
     

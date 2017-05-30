@@ -2,6 +2,7 @@ package ru.breffi.storyclmsdk;
 
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -10,13 +11,16 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
+
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import ru.breffi.storyclmsdk.OAuth.AccessTokenManager;
 import ru.breffi.storyclmsdk.OAuth.OAuthAuthenticator;
 import ru.breffi.storyclmsdk.OAuth.OAuthInterceptor;
+
 import ru.breffi.storyclmsdk.TypeAdapters.MapDeserializerDoubleAsIntFix;
+import ru.breffi.storyclmsdk.TypeAdapters.StoryDateTypeAdapter;
 
 public class StoryCLMConnectorsGenerator {
 	 	public static final String API_BASE_URL = "https://api.storyclm.com/v1/";
@@ -78,7 +82,11 @@ public class StoryCLMConnectorsGenerator {
     	}
     	private static Gson getGson(GsonBuilder gsonBuilder){
     	    	gsonBuilder.registerTypeAdapter(new TypeToken<Map<String, Object>>(){}.getType(),  new MapDeserializerDoubleAsIntFix());
-    	    	return gsonBuilder.serializeNulls().create();
+    	    	gsonBuilder.registerTypeAdapter(Date.class,  new StoryDateTypeAdapter());
+    	    	Gson gson = gsonBuilder.serializeNulls().setPrettyPrinting().create();
+    	 
+    	    	
+    	    	return gson;
     	
     	}
     	

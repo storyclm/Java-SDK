@@ -16,17 +16,11 @@ public class GMTZoneForcedAdapter implements JsonDeserializer<Date> {
   public Date deserialize(JsonElement element, Type arg1, JsonDeserializationContext arg2) throws JsonParseException {
       String date = element.getAsString();
 
-      SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-      format.setTimeZone(TimeZone.getTimeZone("GMT"));
-      System.out.println(date);
-    
+      SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+      format.setTimeZone(TimeZone.getTimeZone("GMT"));    
          try {
         	  System.out.println("GMT converter");
         	  Date d = format.parse(date);
-        	 
-        	  System.out.println(d.toGMTString());
-        	  System.out.println(d.toLocaleString());
-        	  System.out.println(d.toString());
         	  return d;
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block

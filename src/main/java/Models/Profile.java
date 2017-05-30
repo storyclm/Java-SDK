@@ -2,10 +2,10 @@ package Models;
 
 import java.util.Date;
 
-import com.google.gson.annotations.JsonAdapter;
+
 //import com.google.gson.internal.bind.DateTypeAdapter;
 
-import ru.breffi.storyclmsdk.TypeAdapters.CustomDateTypeAdapter;
+//import ru.breffi.storyclmsdk.TypeAdapters.CustomDateTypeAdapter;
 
 
 public class Profile {
@@ -37,6 +37,18 @@ public class Profile {
     /// <summary>
     /// Дата регистрации
     /// </summary>
-    @JsonAdapter(CustomDateTypeAdapter.class)
+  //  @JsonAdapter(CustomDateTypeAdapter.class)
     public Date Created ;
+    
+    @Override
+    public boolean equals(Object o){
+    	Profile other = (Profile) o;
+    	return 
+    				(other._id.equals(_id))
+    			&&	(other.Gender.equals(Gender))
+    			&&	(other.Age == Age)
+    			&&	(other.Created.equals(other.Created))
+    			&&	(other.Name.equals(Name))
+    			&&	(other.Rating == Rating);
+    }
 }
