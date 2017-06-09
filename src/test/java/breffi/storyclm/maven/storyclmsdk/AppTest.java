@@ -185,7 +185,7 @@ public class AppTest
         
         //Агрегаты
         
-        double avgage = StoryCLMProfileService.Avg("Age", null , double.class).GetResult();
+        double avgage = StoryCLMProfileService.AvgOrDefault("Age", null , double.class,null).GetResult();
         assertEquals("Среднее вычисленно не корректно", 23.2,avgage);
         
         double maxage = StoryCLMProfileService.Max("Age", null , double.class).GetResult();
@@ -194,7 +194,7 @@ public class AppTest
         double minage = StoryCLMProfileService.Min("Age", null , double.class).GetResult();
         assertEquals("Min вычисленно не корректно",22d,minage);
         
-        double sumage = StoryCLMProfileService.Sum("Age", null , double.class).GetResult();
+        double sumage = StoryCLMProfileService.SumOrDefault("Age", null , double.class,null).GetResult();
         assertEquals("Sum вычисленно не корректно",116d,sumage);
 
         
@@ -206,18 +206,18 @@ public class AppTest
         
         
         
-/*        Profile maxRateProfileSaved= StoryCLMProfileService.Last( null ,"rating", 1).GetResult();
+        Profile maxRateProfileSaved= StoryCLMProfileService.LastOrDefault( null ,"rating", 1, null).GetResult();
         assertEquals("Last вычисленно не корректно",maxRateProfile,maxRateProfileSaved);
-  */     
+  
         
         
 
 
         //Проверка first        
-        Profile minSavedRateProfile= StoryCLMProfileService.First( null ,"Rating", 1).GetResult();
+        Profile minSavedRateProfile= StoryCLMProfileService.FirstOrDefault( null ,"Rating", 1,null).GetResult();
         assertEquals("First вычисленно не корректно",minRateprofile,minSavedRateProfile);
         
-        Profile maxRateProfileSaved= StoryCLMProfileService.First( null ,"Rating", -1).GetResult();
+         maxRateProfileSaved= StoryCLMProfileService.FirstOrDefault( null ,"Rating", -1, null).GetResult();
         assertEquals("First вычисленно не корректно",maxRateProfile,maxRateProfileSaved);
         
         

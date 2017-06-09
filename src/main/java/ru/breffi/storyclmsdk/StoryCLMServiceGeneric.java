@@ -170,7 +170,7 @@ public class StoryCLMServiceGeneric<T> {
 	 
 	 
 	 
-	 public <R> IAsyncResult<R> MaxOrDefault(String field,String query, Class<R> resultType, final R defaultResult){
+	/* public <R> IAsyncResult<R> MaxOrDefault(String field,String query, Class<R> resultType, final R defaultResult){
 		 return new SequanceCallResult<Long,R>(
 				 this.CountByQuery(query),
 				 new ProxyCallResult<>(service.Max(tableid,field, query), new SingleValueConverter<R>(gson, resultType))
@@ -182,38 +182,36 @@ public class StoryCLMServiceGeneric<T> {
 					}};
 		 
 		 
-		/* new IMiddleCallBack<Long,MiddleCallBackResult<R>>() {
-				@Override
-				public MiddleCallBackResult<R> Execute(Long in) {
-					return new MiddleCallBackResult<R>(null, in==0);
-				}
-			 },*/
+		
 		 //return new ProxyCallResult<>(service.Max(tableid,field, query), new SingleValueConverter<R>(gson, resultType));
-	 }
+	 }*/
 
 	 public <R> IAsyncResult<R> Min(String field,String query, Class<R> resultType){
 		 return new ProxyCallResult<>(service.Min(tableid,field, query), new SingleValueConverter<R>(gson, resultType));
 	 }
 	 
-	 public <R> IAsyncResult<R> MinOrDefault(String field,String query, Class<R> resultType,final R defaultResult){
+	 public <R> IAsyncResult<R> MinOrDefault(String field,String query, Class<R> resultType,R defaultResult){
 		 return new ProxyCallResult<>(service.Min(tableid,field, query), new SingleValueConverter<R>(gson, resultType), defaultResult);
 	 }  
 	 
-	 public <R> IAsyncResult<R> Sum(String field,String query, Class<R> resultType){
-		 return new ProxyCallResult<>(service.Sum(tableid,field, query), new SingleValueConverter<R>(gson, resultType));
+	 public <R> IAsyncResult<R> MaxOrDefault(String field,String query, Class<R> resultType,R defaultResult){
+		 return new ProxyCallResult<>(service.Max(tableid,field, query), new SingleValueConverter<R>(gson, resultType), defaultResult);
+	 }  
+	 
+	 
+	 public <R> IAsyncResult<R> SumOrDefault(String field,String query, Class<R> resultType,R defaultResult){
+		 return new ProxyCallResult<>(service.Sum(tableid,field, query), new SingleValueConverter<R>(gson, resultType), defaultResult);
 	 }
-	 public <R> IAsyncResult<R> Avg(String field,String query, Class<R> resultType){
-		 return new ProxyCallResult<>(service.Avg(tableid,field, query), new SingleValueConverter<R>(gson, resultType));
+	 public <R> IAsyncResult<R> AvgOrDefault(String field,String query, Class<R> resultType, R defaultResult){
+		 return new ProxyCallResult<>(service.Avg(tableid,field, query), new SingleValueConverter<R>(gson, resultType), defaultResult);
 	 }
 	 
-	 public  IAsyncResult<T> First(String query,  String sortfield, Integer sort){
-		 return new AsyncResult<>(service.First(tableid,query, sortfield, sort), classOfT, gson);
-		// return new ProxyCallResult<>(service.First(tableid,query, sortfield, sort));
+	 public  IAsyncResult<T> FirstOrDefault(String query,  String sortfield, Integer sort, T defaultResult){
+		 return new AsyncResult<>(service.First(tableid,query, sortfield, sort), classOfT, gson,defaultResult);
 	 }
 	 
-	 public  IAsyncResult<T> Last(String query,  String sortfield, Integer sort){
-		 return //new ProxyCallResult<>(service.Last(tableid,query, sortfield, sort));
-		 new AsyncResult<>(service.Last(tableid,query, sortfield, sort), classOfT, gson);
+	 public  IAsyncResult<T> LastOrDefault(String query,  String sortfield, Integer sort, T defaultResult){
+		 return new AsyncResult<>(service.Last(tableid,query, sortfield, sort), classOfT, gson,defaultResult);
 	 }
 	
 	

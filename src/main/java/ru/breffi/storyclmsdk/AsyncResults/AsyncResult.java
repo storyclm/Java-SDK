@@ -21,7 +21,7 @@ public class AsyncResult<T,J extends JsonElement> implements IAsyncResult<T> {
 private Call<J> jcall;
 private Gson gson;  
 private Type classOfT;
-
+T defaultResult = null;
 
 /**
  * 
@@ -30,6 +30,12 @@ private Type classOfT;
  * @param gson 
  * Передаем сюда тот же (уже настроенный) экземпляр gson для единообразной конвертации
  */
+public AsyncResult(Call<J> jcall, Type classOfT, Gson gson,T defaultResult){
+	this.jcall = jcall;
+	this.classOfT = classOfT;
+	this.defaultResult = defaultResult;
+	this.gson = (gson==null)? new Gson():gson;
+}
 public AsyncResult(Call<J> jcall, Type classOfT, Gson gson){
 	this.jcall = jcall;
 	this.classOfT = classOfT;
@@ -40,6 +46,8 @@ public T GetResult() throws AsyncResultException {
 	try {
 		Response<J> response = jcall.execute();
 		if (!response.raw().isSuccessful()) throw new ResultServerException("Ошибка сервера: " + response.errorBody().string(), response.code());
+		if (response.code()==204)
+			return defaultResult;
 		return gson.fromJson(response.body(), classOfT);
 	} catch (JsonSyntaxException e) {
 		   e.printStackTrace();
@@ -56,7 +64,11 @@ public void OnResult(final OnResultCallback<T> callback){
 					@Override
 				    public void onResponse(Call<J> call, Response<J> response) {
 				        if (response.isSuccessful()) {
-				         callback.OnSuccess((T)gson.fromJson(response.body(),classOfT));
+				        	 T result = (response.code()==204)?defaultResult:(T)gson.fromJson(response.body(),classOfT);
+					         
+					         callback.OnSuccess(result);
+					         
+				         
 				        } else {
 				        	String errorMessage = "невозможно прочитать сообщение об ошибке.";
 				        	try {errorMessage=response.errorBody().string();} catch (IOException e) {}
