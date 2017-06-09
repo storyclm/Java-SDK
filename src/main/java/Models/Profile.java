@@ -47,7 +47,7 @@ public class Profile {
     				(other._id.equals(_id))
     			&&	(other.Gender.equals(Gender))
     			&&	(other.Age == Age)
-    			&&	(other.Created.equals(other.Created))
+    			&&	(other.Created.equals(Created))
     			&&	(other.Name.equals(Name))
     			&&	(other.Rating == Rating);
     }

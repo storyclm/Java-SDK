@@ -15,10 +15,18 @@ import ru.breffi.storyclmsdk.Exceptions.ResultServerException;
 public class ProxyCallResult<Tin,Tout> implements IAsyncResult<Tout> {
 	private Call<Tin> jcall;
 	Converter<Tin,Tout> converter;
+	Tout defaultResult = null;
 	public ProxyCallResult(Call<Tin> jcall, Converter<Tin,Tout> converter){
 		this.jcall = jcall;
 		this.converter = converter;
 	}
+	
+	public ProxyCallResult(Call<Tin> jcall, Converter<Tin,Tout> converter, Tout defaultResult){
+		this.jcall = jcall;
+		this.converter = converter;
+		this.defaultResult = defaultResult;
+	}
+	
 	
 	public ProxyCallResult(Call<Tin> jcall){
 		this(jcall,new Converter<Tin, Tout>(){@SuppressWarnings("unchecked")
@@ -35,6 +43,8 @@ public class ProxyCallResult<Tin,Tout> implements IAsyncResult<Tout> {
 		try {
 			Response<Tin> response = jcall.execute();
 			if (!response.raw().isSuccessful()) throw new ResultServerException("Ошибка сервера: " + response.code() + ", "+ response.errorBody().string(), response.code());
+			if (response.code()==204)
+				return defaultResult;
 			return converter.Convert(response.body());
 		} 
 		catch (AuthFaliException e){
@@ -59,7 +69,9 @@ public class ProxyCallResult<Tin,Tout> implements IAsyncResult<Tout> {
 		    @Override
 		    public void onResponse(Call<Tin> call, Response<Tin> response) {
 		        if (response.isSuccessful()) {
-		         callback.OnSuccess(converter.Convert(response.body()));
+		         Tout result = (response.code()==204)?defaultResult:converter.Convert(response.body());
+		         
+		         callback.OnSuccess(result);
 		        } else {
 		          callback.OnFail(null);
 		        }

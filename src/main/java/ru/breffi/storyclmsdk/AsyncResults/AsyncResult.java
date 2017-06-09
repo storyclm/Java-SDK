@@ -39,7 +39,7 @@ public AsyncResult(Call<J> jcall, Type classOfT, Gson gson){
 public T GetResult() throws AsyncResultException {
 	try {
 		Response<J> response = jcall.execute();
-	if (!response.raw().isSuccessful()) throw new ResultServerException("Ошибка сервера: " + response.errorBody().string(), response.code());
+		if (!response.raw().isSuccessful()) throw new ResultServerException("Ошибка сервера: " + response.errorBody().string(), response.code());
 		return gson.fromJson(response.body(), classOfT);
 	} catch (JsonSyntaxException e) {
 		   e.printStackTrace();

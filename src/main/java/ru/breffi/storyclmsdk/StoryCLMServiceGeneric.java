@@ -11,8 +11,12 @@ import com.google.gson.JsonObject;
 
 import ru.breffi.storyclmsdk.AsyncResults.AsyncResult;
 import ru.breffi.storyclmsdk.AsyncResults.Converter;
+import ru.breffi.storyclmsdk.AsyncResults.FinalAsyncResult;
 import ru.breffi.storyclmsdk.AsyncResults.IAsyncResult;
+import ru.breffi.storyclmsdk.AsyncResults.MiddleCallBackResult;
 import ru.breffi.storyclmsdk.AsyncResults.ProxyCallResult;
+import ru.breffi.storyclmsdk.AsyncResults.SequanceCallResult;
+import ru.breffi.storyclmsdk.AsyncResults.SequanceChainCallResult;
 import ru.breffi.storyclmsdk.AsyncResults.SingleValueConverter;
 import ru.breffi.storyclmsdk.Exceptions.AsyncResultException;
 import ru.breffi.storyclmsdk.Exceptions.AuthFaliException;
@@ -115,6 +119,29 @@ public class StoryCLMServiceGeneric<T> {
 		return resultArray;
 	 }
 	 
+	 /*
+	  * Функция асинхронного получения всех записей
+	  * Используется когда нужно получить все не заморачиваясь на skip  и take
+	  * В целях "защиты сервера" используется задержка между вызовами 200 мс
+	  * Оба параметра опциональны
+	  * В слуае не указания porion будет использовать значение по умолчанию указанное на сервере
+	  */
+	 public IAsyncResult<List<T>> FindAll(final String query, final Integer portion) throws AsyncResultException, AuthFaliException{
+		 final List<T> result = new ArrayList<T>();
+		 return new SequanceChainCallResult<List<T>>(null){
+				@Override
+				public IAsyncResult<List<T>> GetInnerAsyncResult(List<T> previouResult) {
+					if (previouResult!=null) 
+						{
+							result.addAll(previouResult);
+							if (previouResult.size()==0) 
+								return new FinalAsyncResult<>(result);
+						}
+					return Find(query, "_id", 1, result.size(),portion);
+				}};  
+
+	 }
+	 
 	 public IAsyncResult<T> Find(String id){
 		 return new AsyncResult<>(service.Find(tableid, id), classOfT, gson);
 	 }
@@ -139,10 +166,39 @@ public class StoryCLMServiceGeneric<T> {
 	 public <R> IAsyncResult<R> Max(String field,String query, Class<R> resultType){
 		 return new ProxyCallResult<>(service.Max(tableid,field, query), new SingleValueConverter<R>(gson, resultType));
 	 }
+	 
+	 
+	 
+	 
+	 public <R> IAsyncResult<R> MaxOrDefault(String field,String query, Class<R> resultType, final R defaultResult){
+		 return new SequanceCallResult<Long,R>(
+				 this.CountByQuery(query),
+				 new ProxyCallResult<>(service.Max(tableid,field, query), new SingleValueConverter<R>(gson, resultType))
+				 )
+		 			{
+			 			@Override
+			 			public MiddleCallBackResult<R> MiddleCallBack(Long firstResult) {
+			 				return new MiddleCallBackResult<R>(defaultResult, firstResult==0);
+					}};
+		 
+		 
+		/* new IMiddleCallBack<Long,MiddleCallBackResult<R>>() {
+				@Override
+				public MiddleCallBackResult<R> Execute(Long in) {
+					return new MiddleCallBackResult<R>(null, in==0);
+				}
+			 },*/
+		 //return new ProxyCallResult<>(service.Max(tableid,field, query), new SingleValueConverter<R>(gson, resultType));
+	 }
 
 	 public <R> IAsyncResult<R> Min(String field,String query, Class<R> resultType){
 		 return new ProxyCallResult<>(service.Min(tableid,field, query), new SingleValueConverter<R>(gson, resultType));
 	 }
+	 
+	 public <R> IAsyncResult<R> MinOrDefault(String field,String query, Class<R> resultType,final R defaultResult){
+		 return new ProxyCallResult<>(service.Min(tableid,field, query), new SingleValueConverter<R>(gson, resultType), defaultResult);
+	 }  
+	 
 	 public <R> IAsyncResult<R> Sum(String field,String query, Class<R> resultType){
 		 return new ProxyCallResult<>(service.Sum(tableid,field, query), new SingleValueConverter<R>(gson, resultType));
 	 }
@@ -151,7 +207,8 @@ public class StoryCLMServiceGeneric<T> {
 	 }
 	 
 	 public  IAsyncResult<T> First(String query,  String sortfield, Integer sort){
-		 return new ProxyCallResult<>(service.First(tableid,query, sortfield, sort));
+		 return new AsyncResult<>(service.First(tableid,query, sortfield, sort), classOfT, gson);
+		// return new ProxyCallResult<>(service.First(tableid,query, sortfield, sort));
 	 }
 	 
 	 public  IAsyncResult<T> Last(String query,  String sortfield, Integer sort){

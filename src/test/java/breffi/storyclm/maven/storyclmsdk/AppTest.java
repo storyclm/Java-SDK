@@ -8,12 +8,15 @@ import java.util.List;
 
 import Models.Profile;
 import junit.framework.Assert;
+import junit.framework.AssertionFailedError;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import ru.breffi.storyclmsdk.OnResultCallback;
 import ru.breffi.storyclmsdk.StoryCLMConnectorsGenerator;
 import ru.breffi.storyclmsdk.StoryCLMServiceConnector;
 import ru.breffi.storyclmsdk.StoryCLMServiceGeneric;
+import ru.breffi.storyclmsdk.AsyncResults.IAsyncResult;
 import ru.breffi.storyclmsdk.Exceptions.AsyncResultException;
 import ru.breffi.storyclmsdk.Exceptions.AuthFaliException;
 import ru.breffi.storyclmsdk.Models.ApiTable;
@@ -52,26 +55,29 @@ public class AppTest
      * Rigourous Test :-)
      * @throws AsyncResultException 
      * @throws AuthFaliException 
+     * @throws InterruptedException 
      */
-    public void testApp() throws AuthFaliException, AsyncResultException
+    public void testApp() throws AuthFaliException, AsyncResultException, InterruptedException
     {
     	
     	ApiTable[] tables= clientConnector.GetTables(18).GetResult();
     	assertTrue("Таблицы отсутствуют у клиента", tables.length>0);
     	
     	//Ищем таблицу Profile
-    	ApiTable ptable=null;
+   /* 	ApiTable ptable=null;
     	for(ApiTable t:tables)
     		if (t.name.contains("Profile")) ptable = t;
     	assertFalse("Таблица Profile отсутствует у клиента", ptable==null);
-    	
+    */	
     	
     	//Создаем сервис для Profile
-    	StoryCLMProfileService = clientConnector.GetService(Profile.class, ptable.id);
+    	StoryCLMProfileService = clientConnector.GetService(Profile.class, 67);
     	
     	long count = StoryCLMProfileService.Count().GetResult();
     	if (count>0){
-    		List<Profile> oldProfiles = StoryCLMProfileService.FindAllSync(null);
+    	
+    		
+    		List<Profile> oldProfiles =StoryCLMProfileService.FindAllSync(null);
     		List<String> ids = new ArrayList<String>();
     		for(Profile p:oldProfiles){
     			ids.add(p._id);
@@ -80,28 +86,69 @@ public class AppTest
     		count = StoryCLMProfileService.Count().GetResult();
     		assertEquals("Удаление старых элементов из таблицы не сработало",0,count);
     	}
-    
+    	
+    	//Пока в базе нет записей
+    	  Double nullminage = StoryCLMProfileService.MinOrDefault("Age", null , double.class,null).GetResult();
+          assertEquals("Max не должнобыть в базе",null,nullminage);
+          
+          int defaultminage = StoryCLMProfileService.MinOrDefault("Age", null , int.class,-1).GetResult();
+          assertEquals("Max не должнобыть в базе",-1,defaultminage);
+          
+    	//Пока в базе нет записей
+    	  Double nullmaxage = StoryCLMProfileService.MaxOrDefault("Age", null , double.class,null).GetResult();
+          assertEquals("Max не должнобыть в базе",null,nullmaxage);
+          
+        //асинхронно
+		final AsyncResultContainer<Double> resultContainer = new AsyncResultContainer<Double>();
+          IAsyncResult<Double> asr = StoryCLMProfileService.MaxOrDefault("Age", null , double.class,null);
+          
+          asr.OnResult(new OnResultCallback<Double>() {
+        	  		@Override
+					public void OnSuccess(Double result) {
+        	  			resultContainer.completed = true;
+						resultContainer.result = result;
+					}
+			
+					@Override
+					public void OnFail(Throwable t) {
+						resultContainer.completed = true;
+						resultContainer.fail = true;
+						throw new AssertionFailedError("При получении дефаултного max не должно быть ошибки");
+					}
+		});
+    	
+    	while(!resultContainer.completed){
+    		 Thread.sleep(200);
+    	}
+    	
+    	assertNull("Max не должнобыть в базе", resultContainer.result);
+    	assertFalse("Запрос для Max должен закончиться успешно", resultContainer.fail);
+    	
+    	
+    	
+    	
+    	
     	List<String> ids = new ArrayList<String>();
     	////Добавить новую запись в таблицу
         ////Вернет запись с идентификатором
-    	Profile profile = CreateProfile();
-        profile = StoryCLMProfileService.Insert(profile).GetResult();
-        ids.add(profile._id);
+    	Profile minRateprofile = CreateProfile();
+    	minRateprofile = StoryCLMProfileService.Insert(minRateprofile).GetResult();
+        ids.add(minRateprofile._id);
         count = StoryCLMProfileService.Count().GetResult();
         assertEquals("Элемент не добавился",1, count);
-        Profile savedProfile = StoryCLMProfileService.Find(profile._id).GetResult(); 
-        assertEquals("Сохраненнный элемент не равен исходному", savedProfile,profile);
+        Profile savedProfile = StoryCLMProfileService.Find(minRateprofile._id).GetResult(); 
+        assertEquals("Сохраненнный элемент не равен исходному", savedProfile,minRateprofile);
         
         
         
-        profile = StoryCLMProfileService.Insert(CreateProfile1()).GetResult();
+        Profile profile = StoryCLMProfileService.Insert(CreateProfile1()).GetResult();
         ids.add(profile._id);
-        profile = StoryCLMProfileService.Insert(CreateProfile2()).GetResult();
-        ids.add(profile._id);
+        Profile timur =  StoryCLMProfileService.Insert(CreateTimur()).GetResult();
+        ids.add(timur._id);
         profile = StoryCLMProfileService.Insert(CreateProfile3()).GetResult();
         ids.add(profile._id);
-        Profile maxAgeProfile = StoryCLMProfileService.Insert(CreateProfile4()).GetResult();
-        ids.add(maxAgeProfile._id);
+        Profile maxRateProfile = StoryCLMProfileService.Insert(CreateProfile4()).GetResult();
+        ids.add(maxRateProfile._id);
         
         count = StoryCLMProfileService.Count().GetResult();
         assertEquals("Элементы не добавились",5, count);
@@ -109,6 +156,33 @@ public class AppTest
         List<Profile> savedP = StoryCLMProfileService.Find(ids.toArray(new String[ids.size()])).GetResult();
         assertEquals("Не все элементы вернул", 5, savedP.size());
 
+        //Функция асинхронного получения всех записей
+        
+    	final AsyncResultContainer<List<Profile>> findResultContainer = new AsyncResultContainer<List<Profile>>();
+		IAsyncResult<List<Profile>> olas =  StoryCLMProfileService.FindAll(null, 2);
+		olas.OnResult(new OnResultCallback<List<Profile>>() {
+			
+			@Override
+			public void OnSuccess(List<Profile> result) {
+				findResultContainer.completed = true;
+				findResultContainer.result = result;
+				
+			}
+			
+			@Override
+			public void OnFail(Throwable t) {
+				findResultContainer.completed = true;
+				findResultContainer.fail = true;
+				
+			}
+		});
+		while(!findResultContainer.completed){
+   		 Thread.sleep(200);
+		}
+        
+		assertEquals("Не все элементы вернул", 5, findResultContainer.result.size());
+        
+        
         //Агрегаты
         
         double avgage = StoryCLMProfileService.Avg("Age", null , double.class).GetResult();
@@ -123,13 +197,30 @@ public class AppTest
         double sumage = StoryCLMProfileService.Sum("Age", null , double.class).GetResult();
         assertEquals("Sum вычисленно не корректно",116d,sumage);
 
-        Profile maxAgeProfileSaved= StoryCLMProfileService.Last( null ,"Age", - 1).GetResult();
-        assertEquals("Last вычисленно не корректно",maxAgeProfile,maxAgeProfileSaved);
+        
+        //Query
+        
+        Profile storytimur = StoryCLMProfileService.Find("[Name][eq][\"Тимур\"]", null, null, 0,1).GetResult().get(0);
+        
+        assertEquals("Объект по русским буквам не найде",timur,storytimur);
         
         
-        Profile minCreatedProfile= StoryCLMProfileService.First( null ,"Created", 1).GetResult();
-        assertEquals("First вычисленно не корректно",CreateProfile4(),minCreatedProfile);
+        
+/*        Profile maxRateProfileSaved= StoryCLMProfileService.Last( null ,"rating", 1).GetResult();
+        assertEquals("Last вычисленно не корректно",maxRateProfile,maxRateProfileSaved);
+  */     
+        
+        
 
+
+        //Проверка first        
+        Profile minSavedRateProfile= StoryCLMProfileService.First( null ,"Rating", 1).GetResult();
+        assertEquals("First вычисленно не корректно",minRateprofile,minSavedRateProfile);
+        
+        Profile maxRateProfileSaved= StoryCLMProfileService.First( null ,"Rating", -1).GetResult();
+        assertEquals("First вычисленно не корректно",maxRateProfile,maxRateProfileSaved);
+        
+        
         
         ////Добавить коллекцию записей в таблицу
         ////Вернет коллекцию записей с идентификаторами
@@ -137,7 +228,7 @@ public class AppTest
 
         
         count = StoryCLMProfileService.Count().GetResult();
-        assertEquals("Элементы не добавились",7, count);
+        assertEquals("Элементы не добавились",8, count);
         ////Обновить запись в таблице
         ////Перепишет все поля записи кроме идентификаторов
         profiles.add(StoryCLMProfileService.Update(UpdateProfile(profile)).GetResult());
@@ -180,7 +271,6 @@ public class AppTest
         profile =StoryCLMProfileService.Insert(CreateProfile()).GetResult();
         String id = profile._id;
     	
-    	StoryCLMProfileService.Delete("58ca82198047e227c41b65c8").GetResult();
 		profiles = StoryCLMProfileService.Find(null, null,null, 0, 10).GetResult();
 
 		profiles.get(0).Name = "JavaUser222333";
@@ -198,7 +288,7 @@ public class AppTest
 		for(Profile p:oldProfiles){
 			ids.add(p._id);
 		}
-		StoryCLMProfileService.Delete(ids.toArray(new String[ids.size()]));
+		StoryCLMProfileService.Delete(ids.toArray(new String[ids.size()])).GetResult();
 		count = StoryCLMProfileService.Count().GetResult();
 		assertEquals("Удаление элементов из таблицы не сработало",0,count);
 		
@@ -212,7 +302,7 @@ public class AppTest
         test.Name = "Vladimir";
         test.Age = 22;
         test.Gender = true;
-        test.Rating = 2.2D;
+        test.Rating = 1D;
         test.Created = new Date();
         
         return test;
@@ -231,10 +321,10 @@ public class AppTest
         return test;
     }
 
-    Profile CreateProfile2()
+    Profile CreateTimur()
     {
         Profile test = new Profile();
-        test.Name = "Vladimir";
+        test.Name = "Тимур";
         test.Age = 28;
         test.Gender = true;
         test.Rating = 2.2D;
@@ -266,7 +356,7 @@ public class AppTest
           test.Name = "Tamerlan";
           test.Age = 22;
           test.Gender = true;
-          test.Rating = 2.2D;
+          test.Rating = 5.2D;
           test.Created = new Date(0);
           return test;
     }
