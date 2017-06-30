@@ -12,6 +12,7 @@ import com.google.gson.JsonObject;
 import ru.breffi.storyclmsdk.AsyncResults.AsyncResult;
 import ru.breffi.storyclmsdk.AsyncResults.Converter;
 import ru.breffi.storyclmsdk.AsyncResults.FinalAsyncResult;
+import ru.breffi.storyclmsdk.AsyncResults.FinalValue;
 import ru.breffi.storyclmsdk.AsyncResults.IAsyncResult;
 import ru.breffi.storyclmsdk.AsyncResults.MiddleCallBackResult;
 import ru.breffi.storyclmsdk.AsyncResults.ProxyCallResult;
@@ -156,9 +157,33 @@ public class StoryCLMServiceGeneric<T> {
 		 return new AsyncResult<>(service.Delete(tableid, id), classOfT, gson);
 	 }
 	
+	 final int  maxIdsInUrl = 5;
 	 
-	 public IAsyncResult<ApiLog[]> Delete(String[] ids){
+	 public IAsyncResult<List<ApiLog>> Delete(List<String> ids){
+		 if (ids.size()>maxIdsInUrl) return Delete(ids,maxIdsInUrl);
 		 return new AsyncResult<>(service.Delete(tableid, ids), genericListTypeOfT, gson);
+	 }
+	 
+	 
+	 public IAsyncResult<List<ApiLog>> Delete(final List<String> ids, int portion){
+		 
+		 final List<ApiLog> result= new ArrayList<ApiLog>();
+		 final Integer finalPortion = (portion >maxIdsInUrl)?maxIdsInUrl:portion; 
+		 final FinalValue<Integer> i = new FinalValue<>(0);
+		 return new SequanceChainCallResult<List<ApiLog>>(null){
+				@Override
+				public IAsyncResult<List<ApiLog>> GetInnerAsyncResult(List<ApiLog> previouResult) {
+					if (previouResult!=null) //В начале мы не попадем под это условие
+						{
+							result.addAll(previouResult);
+							if (i.Value>=ids.size()) 
+								return new FinalAsyncResult<>(result);
+						}
+					int fromIndex = i.Value;
+					int toIndex = i.Value+finalPortion>ids.size()?ids.size():i.Value+finalPortion;
+					i.SetValue(toIndex);
+					return Delete(ids.subList(fromIndex,toIndex));
+				}}; 
 	 }
 	 
 	 

@@ -1,5 +1,7 @@
 package ru.breffi.storyclmsdk;
 
+import java.util.List;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -74,7 +76,7 @@ public interface IStoryCLMService{
 	 public Call<JsonObject> Delete(@Path("tableid") int tableid, @Path("id") String id);
 	
 	 @DELETE("tables/{tableid}/deletemany/")
-	 public Call<JsonArray> Delete(@Path("tableid") int tableid,  @Query("ids") String[] ids);
+	 public Call<JsonArray> Delete(@Path("tableid") int tableid,  @Query("ids") List<String> ids);
 
 	 //Aggregation
 

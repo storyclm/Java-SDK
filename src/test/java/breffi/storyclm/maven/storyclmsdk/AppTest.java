@@ -19,6 +19,7 @@ import ru.breffi.storyclmsdk.StoryCLMServiceGeneric;
 import ru.breffi.storyclmsdk.AsyncResults.IAsyncResult;
 import ru.breffi.storyclmsdk.Exceptions.AsyncResultException;
 import ru.breffi.storyclmsdk.Exceptions.AuthFaliException;
+import ru.breffi.storyclmsdk.Models.ApiLog;
 import ru.breffi.storyclmsdk.Models.ApiTable;
 
 /**
@@ -82,7 +83,7 @@ public class AppTest
     		for(Profile p:oldProfiles){
     			ids.add(p._id);
     		}
-    		StoryCLMProfileService.Delete(ids.toArray(new String[ids.size()])).GetResult();
+    		StoryCLMProfileService.Delete(ids).GetResult();
     		count = StoryCLMProfileService.Count().GetResult();
     		assertEquals("Удаление старых элементов из таблицы не сработало",0,count);
     	}
@@ -228,7 +229,7 @@ public class AppTest
 
         
         count = StoryCLMProfileService.Count().GetResult();
-        assertEquals("Элементы не добавились",8, count);
+        assertEquals("Элементы не добавились",15, count);
         ////Обновить запись в таблице
         ////Перепишет все поля записи кроме идентификаторов
         profiles.add(StoryCLMProfileService.Update(UpdateProfile(profile)).GetResult());
@@ -288,7 +289,39 @@ public class AppTest
 		for(Profile p:oldProfiles){
 			ids.add(p._id);
 		}
-		StoryCLMProfileService.Delete(ids.toArray(new String[ids.size()])).GetResult();
+		StoryCLMProfileService.Delete(ids).GetResult();
+		count = StoryCLMProfileService.Count().GetResult();
+		assertEquals("Удаление элементов из таблицы не сработало",0,count);
+		
+		
+		
+		oldProfiles = StoryCLMProfileService.InsertMany(CreateProfiles()).GetResult();
+		ids = new ArrayList<String>();
+		for(Profile p:oldProfiles){
+			ids.add(p._id);
+		}
+		//Удалим порциями
+		IAsyncResult<List<ApiLog>> res = StoryCLMProfileService.Delete(ids, 2);
+		res.OnResult(new OnResultCallback<List<ApiLog>>() {
+			
+			@Override
+			public void OnSuccess(List<ApiLog> result) {
+				assertEquals(10, result.size());
+				findResultContainer.completed = true;
+			}
+			
+			@Override
+			public void OnFail(Throwable t) {
+				
+				assertTrue("Неожиданное исключение", false);
+				findResultContainer.completed = true;
+			}
+		});
+		
+		findResultContainer.completed = false;
+		while(!findResultContainer.completed){
+	   		 Thread.sleep(200);
+			}
 		count = StoryCLMProfileService.Count().GetResult();
 		assertEquals("Удаление элементов из таблицы не сработало",0,count);
 		
@@ -364,7 +397,7 @@ public class AppTest
     Profile[] CreateProfiles()
     {
         List<Profile> result = new ArrayList<Profile>();
-        for(int i = 0; i < 3; i++)
+        for(int i = 0; i < 10; i++)
             result.add(CreateProfile());
         return result.toArray(new Profile[0]);
     }

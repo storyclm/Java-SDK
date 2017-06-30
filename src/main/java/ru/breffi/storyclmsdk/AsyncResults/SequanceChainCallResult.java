@@ -5,7 +5,15 @@ import ru.breffi.storyclmsdk.OnResultCallback;
 import ru.breffi.storyclmsdk.Exceptions.AsyncResultException;
 import ru.breffi.storyclmsdk.Exceptions.AuthFaliException;
 
-
+/**
+ * Класс последовательно вызывающий несколько асинхронных вызовов
+ * В методе GetInnerAsyncResult задается логика следующего вызова
+ * Данный класс не лучший способ разбиения запроса.
+ * Лучшей альтернативой было бы построение параллельных запросов
+ * @author tselo
+ *
+ * @param <T>
+ */
 public abstract class SequanceChainCallResult<T> implements IAsyncResult<T> {
 
 
@@ -51,8 +59,6 @@ public abstract class SequanceChainCallResult<T> implements IAsyncResult<T> {
 		
 				e.printStackTrace();
 			}
-		 
-		 
 		IAsyncResult<T> innerCallResult =  this.GetInnerAsyncResult(previousResult);
 		if (innerCallResult.getClass() == FinalAsyncResult.class){
 			try {
@@ -70,14 +76,6 @@ public abstract class SequanceChainCallResult<T> implements IAsyncResult<T> {
 			public void OnSuccess(final T result) {
 				self.previousResult = result;
 				self.OnResult(callback);
-				
-				/*IAsyncResult<T> r  =  new SequanceChainCallResult<T>(result){
-				@Override
-				public IAsyncResult<T> GetInnerAsyncResult(T previouResult) {
-					// TODO Auto-generated method stub
-					return self.GetInnerAsyncResult(previouResult);
-				}};  
-				*/	
 			}
 
 			@Override
