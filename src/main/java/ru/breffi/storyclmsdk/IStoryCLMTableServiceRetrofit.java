@@ -16,7 +16,7 @@ import retrofit2.http.Query;
 import ru.breffi.storyclmsdk.Models.ApiLog;
 import ru.breffi.storyclmsdk.Models.ApiTable;
 
-public interface IStoryCLMService{
+public interface IStoryCLMTableServiceRetrofit{
 	/**
 	 * Получает список таблиц доступных пользователю
 	 * @param clientid
@@ -55,13 +55,7 @@ public interface IStoryCLMService{
 	 @GET("tables/{tableid}/log/")
 	 public Call<ApiLog[]> Log(@Path("tableid") int tableid,@Query("date") long unixdate,@Query("skip") int skip , @Query("take") int take);
 
-	/* @GET("tables/{tableid}/findall/{skip}/{take}")
-	 public  Call<JsonArray> Find(@Path("tableid") int tableid, @Path("skip") int skip , @Path("take") int take);
-	 */
-	 /*@GET("tables/{tableid}/find/{query}/{sortfield}/{sort}/{skip}/{take}")
-	 public Call<JsonArray> Find(@Path("tableid") int tableid, @Path("query") String query, @Path("sortfield") String sortfield, @Path("sort") int sort,  @Path("skip") int skip , @Path("take") int take);
-	 */
-	 
+		 
 	 @GET("tables/{tableid}/find/")
 	 public Call<JsonArray> Find(@Path("tableid") int tableid, @Query("query") String query, @Query("sortfield") String sortfield, @Query("sort") Integer sort,  @Query("skip") Integer skip , @Query("take") Integer take);
 	 
@@ -98,4 +92,13 @@ public interface IStoryCLMService{
 	 @GET("tables/{tableid}/last/")
 	 public Call<JsonObject> Last(@Path("tableid") int tableid,  @Query("query") String query, @Query("sortfield") String sortfield, @Query("sort") Integer sort);
 
+	 
+	 
+	 
+
+	 
+	 
+	 
+	 
+	 
 }

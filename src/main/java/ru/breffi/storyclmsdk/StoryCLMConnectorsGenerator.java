@@ -42,7 +42,7 @@ public class StoryCLMConnectorsGenerator {
     	 * @return Коннектор используется для создания конкретных типизированных сервисов для работы с конкретными таблицами клиента.
     	 * @throws IOException
     	 */
-    	public static StoryCLMServiceConnector GetStoryCLMServiceConnector(String client_id, String client_secret,GsonBuilder gBuilder) {
+    	public static StoryCLMServiceConnector GetStoryCLMServiceConnector(String client_id, String client_secret,String user_name, String password, GsonBuilder gBuilder) {
 		/*
 		 * Коннекторы хранятся в словаре по client_id.
 		 * Для каждого клиента (client_id) создается 
@@ -51,16 +51,16 @@ public class StoryCLMConnectorsGenerator {
 		 * IStoryCLMService - использующий указанный OkHttpClient.Builder для транспорта
     	 */
     		
-    		StoryCLMServiceConnector result = null ; //_storyCLMServiceConnectorsMap.getOrDefault(client_id, null);
+    		StoryCLMServiceConnector result = null ; 
     		if(_storyCLMServiceConnectorsMap.containsKey(client_id)) result= _storyCLMServiceConnectorsMap.get(client_id);
     		else
     		{ 
-    			AccessTokenManager accessTokenManager = new AccessTokenManager(client_id, client_secret); 
+    			AccessTokenManager accessTokenManager = new AccessTokenManager(client_id, client_secret, user_name, password); 
     			OkHttpClient okHttpClient = getHttpClient(accessTokenManager);
     		
     			Retrofit retrofit = getbuilder().client(okHttpClient).build();
 	            _storyCLMServiceConnectorsMap
-	            .put(client_id,  result = new StoryCLMServiceConnector(retrofit.create(IStoryCLMService.class),(gBuilder==null)?getGson():getGson(gBuilder)));
+	            .put(client_id,  result = new StoryCLMServiceConnector(retrofit,(gBuilder==null)?getGson():getGson(gBuilder)));
     		}
     		return result;
     	

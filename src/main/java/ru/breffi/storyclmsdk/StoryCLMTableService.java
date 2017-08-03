@@ -14,9 +14,7 @@ import ru.breffi.storyclmsdk.AsyncResults.Converter;
 import ru.breffi.storyclmsdk.AsyncResults.FinalAsyncResult;
 import ru.breffi.storyclmsdk.AsyncResults.FinalValue;
 import ru.breffi.storyclmsdk.AsyncResults.IAsyncResult;
-import ru.breffi.storyclmsdk.AsyncResults.MiddleCallBackResult;
 import ru.breffi.storyclmsdk.AsyncResults.ProxyCallResult;
-import ru.breffi.storyclmsdk.AsyncResults.SequanceCallResult;
 import ru.breffi.storyclmsdk.AsyncResults.SequanceChainCallResult;
 import ru.breffi.storyclmsdk.AsyncResults.SingleValueConverter;
 import ru.breffi.storyclmsdk.Exceptions.AsyncResultException;
@@ -26,7 +24,7 @@ import ru.breffi.storyclmsdk.Models.ApiTable;
 
 
 
-public class StoryCLMServiceGeneric<T> {
+public class StoryCLMTableService<T> {
 
 	Converter<JsonObject,Long> j2intConverter = new Converter<JsonObject, Long>() {
 		@Override
@@ -38,10 +36,10 @@ public class StoryCLMServiceGeneric<T> {
 	private Type classOfT;
 	private GenericListType<T> genericListTypeOfT;
 	private Gson gson;
-	private IStoryCLMService service;
+	private IStoryCLMTableServiceRetrofit service;
 	private int tableid;
 	
-	protected StoryCLMServiceGeneric(Type classOfT, IStoryCLMService service, Gson gson, int tableId){
+	protected StoryCLMTableService(Type classOfT, IStoryCLMTableServiceRetrofit service, Gson gson, int tableId){
 		
 		this.classOfT = classOfT;
 		this.service = service;
@@ -240,4 +238,10 @@ public class StoryCLMServiceGeneric<T> {
 	 }
 	
 	
+	/* public IAsyncResult<JsonArray> Clients(){
+		 IAsyncResult<JsonArray> jobj = new ProxyCallResult<>(service.Clients());
+		 return jobj;
+	 }*/
+	 
+	 
 }

@@ -7,7 +7,6 @@ import java.util.GregorianCalendar;
 import java.util.List;
 
 import Models.Profile;
-import junit.framework.Assert;
 import junit.framework.AssertionFailedError;
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -15,33 +14,35 @@ import junit.framework.TestSuite;
 import ru.breffi.storyclmsdk.OnResultCallback;
 import ru.breffi.storyclmsdk.StoryCLMConnectorsGenerator;
 import ru.breffi.storyclmsdk.StoryCLMServiceConnector;
-import ru.breffi.storyclmsdk.StoryCLMServiceGeneric;
+import ru.breffi.storyclmsdk.StoryCLMTableService;
 import ru.breffi.storyclmsdk.AsyncResults.IAsyncResult;
 import ru.breffi.storyclmsdk.Exceptions.AsyncResultException;
 import ru.breffi.storyclmsdk.Exceptions.AuthFaliException;
 import ru.breffi.storyclmsdk.Models.ApiLog;
 import ru.breffi.storyclmsdk.Models.ApiTable;
 
+
+
 /**
  * Unit test for simple App.
  */
-public class AppTest 
+public class SDKTableServiceTest 
     extends TestCase
 {
 	
 	 StoryCLMServiceConnector clientConnector;
-	 StoryCLMServiceGeneric<Profile> StoryCLMProfileService;
+	 StoryCLMTableService<Profile> StoryCLMProfileService;
 	
     /**
      * Create the test case
      *
      * @param testName name of the test case
      */
-    public AppTest( String testName )
+    public SDKTableServiceTest( String testName )
     {
         super( testName );
-        clientConnector=  StoryCLMConnectorsGenerator.GetStoryCLMServiceConnector("client_18", "595a2fb724604e51a1f9e43b808c76c915c2e0f74e8840b384218a0e354f6de6",null);
-    	StoryCLMProfileService = clientConnector.GetService(Profile.class, 23);
+        clientConnector=  StoryCLMConnectorsGenerator.GetStoryCLMServiceConnector("client_18_1", "d17ac10538ec402b9e2355dd3e2be0332b7f9dfa086645f3adcbff8c7208c94d",null, null, null);
+    	StoryCLMProfileService = clientConnector.GetTableService(Profile.class, 23);
     }
 
     /**
@@ -49,7 +50,7 @@ public class AppTest
      */
     public static Test suite()
     {
-        return new TestSuite( AppTest.class );
+        return new TestSuite( SDKTableServiceTest.class );
     }
 
     /**
@@ -72,7 +73,7 @@ public class AppTest
     */	
     	
     	//Создаем сервис для Profile
-    	StoryCLMProfileService = clientConnector.GetService(Profile.class, 67);
+    	StoryCLMProfileService = clientConnector.GetTableService(Profile.class, 67);
     	
     	long count = StoryCLMProfileService.Count().GetResult();
     	if (count>0){

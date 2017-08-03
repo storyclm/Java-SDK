@@ -11,5 +11,15 @@ public interface OAuthService {
 	    Call<AuthEntity> getNewAccessToken(
 	            @Field("client_id") String clientId,
 	            @Field("client_secret") String clientSecret,
+	            @Field("username") String userName,
+	            @Field("password") String password,
+	            @Field("grant_type") String grantType);
+		
+		@FormUrlEncoded
+	    @POST("/connect/token")
+	    Call<AuthEntity> getNewAccessToken(
+	            @Field("client_id") String clientId,
+	            @Field("client_secret") String clientSecret,
+	            @Field("refresh_token") String refresh_token,
 	            @Field("grant_type") String grantType);
 }
