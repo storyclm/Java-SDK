@@ -1,4 +1,4 @@
-package Models;
+package breffi.storyclm.maven.storyclmsdk;
 
 import java.util.Date;
 

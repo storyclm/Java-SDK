@@ -9,11 +9,12 @@ StoryCLM Java SDK позволяет легко интегрировать си�
 
 Загрузите проект из данного репозитория. Для этого Перейдите в корневой каталог [репозитория](https://github.com/storyclm/Java-SDK) и нажмите на кнопку "Clone or download".
 
+Для автоматической сборки используется локальный maven репозиторий.
 Установите проект в локальное maven хранилище командой 
 
     mvn clean install
 
-  Для добавления в проект в pom файле укажите 
+При использовании системы maven в вашем проекте в pom файле укажите 
 
       <dependency>
     	    <groupId>ru.breffi</groupId>
@@ -21,6 +22,18 @@ StoryCLM Java SDK позволяет легко интегрировать си�
     	    <version>0.0.1-SNAPSHOT</version>
     	    <scope>compile</scope>
       </dependency>
+
+Если используется система grandle (например, в проектах для Android), необходимо сначала указать локальный maven репозиторий в качестве источника. Для этого в файле  build.gradle добавьте в свойство repositories:
+    
+    repositories {
+      mavenLocal()
+    }
+
+Затем в dependencies добавьте ссылку на проект:
+
+    dependencies {
+        compile 'ru.breffi:storyclmsdk:0.0.1-SNAPSHOT'
+    }
 
 
 ## Настройка и получение ключей
@@ -39,12 +52,12 @@ import ru.breffi.storyclmsdk.Exceptions.*;
 
 *Что бы узнать как активировать API, получить ключи доступа и узнать подробную информацию о аутентификации и авторизации в системе нужно ознакомиться с документацией по [REST API](https://github.com/storyclm/documentation/blob/master/RESTAPI.md#Активация).*
 
-**Аутентификация**
+## Аутентификация
 
 С помощью фасадного класса *StoryCLMConnectorsGenerator* для клиента в StoryCLM создается коннектор.
 
-    public static StoryCLMServiceConnector GetStoryCLMServiceConnector(String сlientId, String сlientSecret, GsonBuilder gbuilder);
-
+    public static StoryCLMServiceConnector GetStoryCLMServiceConnector(String сlientId, String сlientSecret, String username, String password, GsonBuilder gbuilder);
+ 
 **Описание:**
 
 По аутентификационным данным создает коннектор для доступа к данным определенного клиента StoryCLM.
@@ -53,7 +66,12 @@ import ru.breffi.storyclmsdk.Exceptions.*;
 **Параметры:**
 * clientId - идентификатор клиента.
 * clientSecret - ключ доступа к API.
-* gbuilder -  специфические настройки *GsonBuilder* для сериализации/десериализации объектов.
+* username - логин пользователя, под учеткой которого подключается приложение
+* password - пароль пользователя.
+* gbuilder -  В SDK для сериализации/десериализации объектов используется библиотека [GSON](https://github.com/google/gson).В данном параметре передаются специфические настройки *GsonBuilder*.
+
+В случае отсутствия *username* и *password* указывается *null*. При этом будет использоваться аутентификация типа *Service*. Для аутентификации приложений типа *Application* необходмио указать *username* и *password* отличными от нуля.
+
 
 **Возвращаемое значение:**
 
@@ -65,11 +83,90 @@ import ru.breffi.storyclmsdk.Exceptions.*;
 
 В данном примере дополнительная настройка конвертации *GsonBuilder* не требуется.
 
-**Сервисы доступа к таблицам**
+Коннектор используется для получения сервисов доступа к контенту (презентации, слайды, медиафайлы) и доступа к таблицам.
 
-Коннектор, полученный при аутентификации на предыдущем шаге служит фабрикой для получения сервисов строготипизированного доступа к конкретным таблицам клиента. Для созданмя сервиса в классе *StoryCLMServiceConnector* имеется следующий метод:
+### Сервис доступа к контенту
+Коннектор, полученный при аутентификации на предыдущем шаге позволяет получить сервис доступа к контенту. Используется следующий метод:
 
-    public <T> StoryCLMServiceGeneric<T> GetService(Type entityType, int tableId)
+    public StoryCLMContentService GetContentService()
+
+**Описание:**
+Метод получения сервиса доступа к контенту.
+
+**Параметры**
+отсутствуют
+
+**Возвращаемое значение** 
+Сервис доступа к контенту StoryCLM. Данный сервис предоставляет ряд методов для получения информации о клиентах, презентациях, слайдах, медиафайлах и .д.
+
+**Пример**
+      
+      StoryCLMContentService contentService = clientConnector.GetContentService();
+
+**Методы доступа к контенту**
+
+Все методы сервисов доступа возвращают объект удовлетворяющий интерфейсу IAsyncResult<T>, который позволяет получать данные в асинхронном режиме. Примеры использования в [интеграционных тестах](https://github.com/storyclm/Java-SDK/tree/master/src/test/java/breffi/storyclm/maven/storyclmsdk).
+
+    public interface IAsyncResult<T> {
+
+	    /**
+	     * Возвращает данные в синхронном режиме. Результат непосредственно необходимое значение 
+	     * @return
+	     * @throws AsyncResultException - ошибка при получении данных
+	     * @throws AuthFaliException - ошибка аутентификации
+	     */
+	    public T GetResult()  throws AsyncResultException, AuthFaliException;
+
+	    /**
+	     * Метод асинхронного доступа к данным. Не блокирует вызывающий поток.
+	     * Результаты запроса передаются объекту callback
+	     * @param callback 
+	     * Объект обратного вызова. 
+	     * При успешном получении данных вызывается метод OnSuccess(T result), куда передается полученный результат
+	     * При ошибке вызывается метод OnFail(Throwable t) с информацией об ошибке.
+	     */
+	    public void OnResult(OnResultCallback<T> callback);
+	
+    }
+
+
+#### Метод IAsyncResult<Client[]> GetClients()
+
+**Описание**
+
+Возвращает информацию о клиентах, которым принадлежит пользователь. [Описание типа Client](https://github.com/storyclm/Java-SDK/blob/master/src/main/java/ru/breffi/storyclmsdk/Models/Client.java)
+
+#### Метод IAsyncResult\<Client> GetClient(int clientid)
+
+**Описание**
+Возвращает информацию о клиенте с идентификатором *clientId*
+
+#### Метод IAsyncResult\<StoryPresentation> GetPresentation(int presentationid)
+
+**Описание**
+Возвращает информацию о презентации с идентификатором *presentationid*.  [Описание типа StoryPresentation](https://github.com/storyclm/Java-SDK/blob/master/src/main/java/ru/breffi/storyclmsdk/Models/StoryPresentation.java)
+
+
+#### Метод IAsyncResult\<StoryMediafile> GetMediafile(int mediafileId)
+
+**Описание**
+Возвращает информацию о медиафайле с идентификатором *mediafileId*.  [Описание типа StoryMediafile](https://github.com/storyclm/Java-SDK/blob/master/src/main/java/ru/breffi/storyclmsdk/Models/StoryMediafile.java)
+
+#### Метод IAsyncResult\<StorySlide> GetSlide(int slideId)
+
+**Описание**
+Возвращает информацию о слайде с идентификатором *slideId*.  [Описание типа StorySlide](https://github.com/storyclm/Java-SDK/blob/master/src/main/java/ru/breffi/storyclmsdk/Models/StorySlide.java)
+ 
+ #### Метод IAsyncResult\<StoryContentPackage> GetSlide(int presentationId)
+
+**Описание**
+Возвращает информацию о пакете презентации с идентификатором *presentationId*.  [Описание типа StoryContentPackage](https://github.com/storyclm/Java-SDK/blob/master/src/main/java/ru/breffi/storyclmsdk/Models/StoryContentPackage.java)
+
+### Сервисы доступа к таблицам
+
+Метод *GetTableService* коннектора (класс *StoryCLMServiceConnector*), служит фабрикой для получения сервисов строготипизированного доступа к конкретным таблицам клиента. Сигнатура метода:
+
+    public <T> StoryCLMTableService<T> GetTableService(Type entityType, int tableId)
 
 **Описание:**
 
@@ -84,13 +181,16 @@ import ru.breffi.storyclmsdk.Exceptions.*;
 
 Сервис строготипизированного доступа к табличным данным StoryCLM.
 
-Пример (используется clientConnector, полученный в предыдущем примере):
+**Пример** (используется clientConnector, полученный в предыдущем примере):
 
-    StoryCLMServiceGeneric<StoryLog> slogService = clientConnector.GetService(StoryLog.class, tableId);
-     
-Каждый сервис соответствует одной таблице, представляя ее данные как объекты указанного типа.В данном примере 
+    StoryCLMTableService<StoryLog> slogService = clientConnector.GetTableService(StoryLog.class, tableId);
+  
+**Примечание**
 
+Каждый сервис соответствует одной таблице, представляя ее данные как объекты указанного типа. В качестве типа можно использовать набор ключ/значение (Map<String,Object>). Для этого используется класс [TypeToken<T>](http://google.github.io/gson/apidocs/com/google/gson/reflect/TypeToken.html) библиотеки [GSON](https://github.com/google/gson). Создание сервиса выглядит следующим образом:
 
+    StoryCLMTableService<Map<String,Object>> dynamicTable = clientConnector.GetTableService(new TypeToken<Map<String,Object>>{}.getType(), tableId);
+  
 ## Таблицы
 
 
@@ -117,15 +217,15 @@ import ru.breffi.storyclmsdk.Exceptions.*;
 **Пример**
 
 ```java
-    StoryCLMServiceConnector clientConnector = GetStoryCLMServiceConnector("your_сlientId", "your_сlientSecret", null);
+    StoryCLMServiceConnector clientConnector = GetStoryCLMServiceConnector("your_сlientId", "your_сlientSecret", "username","password", null);
     ApiTable[] tables = clientConnector.GetTables(int 18);
 ```
   
-**Методы сервиса StoryCLMServiceGeneric\<T>**
+**Методы сервиса StoryCLMTableService<T>**
 
 Методы сервиса соответствуют [REST API](https://github.com/storyclm/documentation/blob/master/RESTAPI.md) StoryCLM и возвращают объект асинхронного вызова, реализующий интерфейс IAsyncResult. 
 С помощью данного объекта можно получить ответ синхронно (метод GetResult), либо подписаться на получение ответа (метод OnResult). 
-Обращаем ваше внимание на то, что методы не являются обобщенными (generic). Тип *Т* получает значение при создании объекта обобщенного класса *StoryCLMServiceGeneric\<T>*
+Обращаем ваше внимание на то, что методы не являются обобщенными (generic). Тип *Т* получает значение при создании объекта обобщенного класса *StoryCLMTableService\<T>*
 
 
 #### Method: IAsyncResult<T> Insert(T record)
@@ -149,7 +249,7 @@ import ru.breffi.storyclmsdk.Exceptions.*;
 
 ```java
     StoryCLMServiceConnector clientConnector = GetStoryCLMServiceConnector("your_сlientId", "your_сlientSecret", null);
-    StoryCLMServiceGeneric<StoryLog> slogService = clientConnector.GetService(StoryLog.class, tableId);
+    StoryCLMTableService<StoryLog> slogService = clientConnector.GetService(StoryLog.class, tableId);
 ```
 
 Класс StoryLog  выглядит следующим образом:
@@ -186,14 +286,14 @@ StoryLog profile = slogService.InsertAsync(new StoryLog()).GetResult();
 Коллекция новых объектов.
 
 **Пример:**
-```cs
+```java
 StoryLog[] logs = new StoryLog[2];
 logs[0] = new StoryLog();
 logs[1] = new StoryLog();
 List<StoryLog> profiles = slogService.InsertMany(logs).GetResult();
 ```
 
-#### Method:  IAsyncResult<T> Update(T record)
+#### Method:  IAsyncResult\<T> Update(T record)
 
 **Описание:**
 
@@ -209,7 +309,7 @@ List<StoryLog> profiles = slogService.InsertMany(logs).GetResult();
 Обновленный объект.
 
 **Пример:**
-```cs
+```java
 StoryLog log = slogService.Update(logs[0]).GetREsult();
 ```
 
@@ -229,7 +329,7 @@ StoryLog log = slogService.Update(logs[0]).GetREsult();
 Коллекция обновленных объектов.
 
 **Пример:**
-```cs
+```java
 List<StoryLog> log = slogService.UpdateMany(logs);
 ```
 
@@ -247,7 +347,7 @@ List<StoryLog> log = slogService.UpdateMany(logs);
 Удаленный объект.
 
 **Пример:**
-```cs
+```java
 ApiLog[] deleteResult = slogService.Delete(log._id).GetResult();
 ```
 
@@ -265,12 +365,12 @@ ApiLog[] deleteResult = slogService.Delete(log._id).GetResult();
 Коллекция удаленных объектов.
 
 **Пример:**
-```cs
+```java
 String[] logids = new String[]{"id1","id2"};
 ApiLog[] deleteResult = slogService.Delete(logids).GetResult();
 ```
 
-#### Method: IAsyncResult<Integer> Count()
+#### Method: IAsyncResult\<Integer> Count()
 
 **Описание:**
 
@@ -284,11 +384,11 @@ ApiLog[] deleteResult = slogService.Delete(logids).GetResult();
 Колличество записей.
 
 **Пример:**
-```cs
+```java
 Integer count = slogService.Count().GetResult();
 ```
 
-#### Method: IAsyncResult<Integer> CountByQuery(String query)
+#### Method: IAsyncResult\<Integer> CountByQuery(String query)
 
 **Описание:**
 
@@ -303,11 +403,11 @@ Integer count = slogService.Count().GetResult();
 Колличество записей.
 
 **Пример:**
-```cs
+```java
 Integer count = slogService.CountByQuery("[age][gt][30]").GetResult();
 ```
 
-#### Method:  IAsyncResult<Integer> CountByLog()
+#### Method:  IAsyncResult\<Integer> CountByLog()
 
 **Описание:**
 
@@ -321,11 +421,11 @@ Integer count = slogService.CountByQuery("[age][gt][30]").GetResult();
 Колличество записей.
 
 **Пример:**
-```cs
+```java
 Integer count = slogService.CountByLog().GetResult();
 ```
 
-#### Method: IAsyncResult<Integer> CountByLog(Date date)
+#### Method: IAsyncResult\<Integer> CountByLog(Date date)
 
 **Описание:**
 
@@ -340,7 +440,7 @@ Integer count = slogService.CountByLog().GetResult();
 Колличество записей.
 
 **Пример:**
-```cs
+```java
 Integer count = slogService.CountByLog(new Date(0)).GetResult();
 ```
 
@@ -359,7 +459,7 @@ Integer count = slogService.CountByLog(new Date(0)).GetResult();
 Коллекция записей лога.
 
 **Пример:**
-```cs
+```java
 ApiLog[]  logs= slogService.Log(0,1000).GetResult();
 ```
 
@@ -379,12 +479,12 @@ ApiLog[]  logs= slogService.Log(0,1000).GetResult();
 Коллекция записей лога.
 
 **Пример:**
-```cs
+```java
 SCLM sclm = SCLM.Instance;
 ApiLog[] logs = slogService.Log(new Date(0),0,1000).GetResult();
 ```
 
-#### Method: IAsyncResult<List<T>> Find(String id)
+#### Method: IAsyncResult<List\<T>> Find(String id)
 
 **Описание:**
 
@@ -398,11 +498,11 @@ ApiLog[] logs = slogService.Log(new Date(0),0,1000).GetResult();
 Объект в таблице.
 
 **Пример:**
-```cs
+```java
 StoryLog slog =  slogService.Find(id).GetResult();
 ```
 
-#### Method:  IAsyncResult<List<T>> Find(String[] ids)
+#### Method:  IAsyncResult<List\<T>> Find(String[] ids)
 
 **Описание:**
 
@@ -417,11 +517,11 @@ StoryLog slog =  slogService.Find(id).GetResult();
 Коллекция объектов.
 
 **Пример:**
-```cs
+```java
 List<StoryLog> slog =  slogService.Find(id).GetResult();
 ```
 
-#### Method: IAsyncResult<List<T>>  Find(int skip , int take)
+#### Method: IAsyncResult<List\<T>>  Find(int skip , int take)
 
 **Описание:**
 
@@ -437,11 +537,11 @@ List<StoryLog> slog =  slogService.Find(id).GetResult();
 Коллекция объектов.
 
 **Пример:**
-```cs
+```java
 List<StoryLog> slog =  slogService.Find(0,1000).GetResult();
 ```
 
-#### Method: IAsyncResult<List<T>> Find(String query, String sortfield, int sort,   int skip , int take)
+#### Method: IAsyncResult<List\<T>> Find(String query, String sortfield, int sort,   int skip , int take)
 
 **Описание:**
 
@@ -466,9 +566,9 @@ List<StoryLog> slog =  slogService.Find(0,1000).GetResult();
 Коллекция объектов.
 
 **Пример:**
-```cs
+```java
 StoryCLMServiceConnector clientConnector=  StoryCLMConnectorsGenerator.GetStoryCLMServiceConnector("****", "****",null);
-StoryCLMServiceGeneric<Profile> StoryCLMProfileService = clientConnector.GetService(Profile.class, 23);
+StoryCLMTableService<Profile> StoryCLMProfileService = clientConnector.GetService(Profile.class, 23);
 //возраст меньше или равен 30
 List<Profile> profiles  = StoryCLMProfileService.Find( "[age][lte][30]", "age", 1, 0, 100).GetResult();
 
