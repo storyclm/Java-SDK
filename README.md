@@ -162,6 +162,160 @@ import ru.breffi.storyclmsdk.Exceptions.*;
 **Описание**
 Возвращает информацию о пакете презентации с идентификатором *presentationId*.  [Описание типа StoryContentPackage](https://github.com/storyclm/Java-SDK/blob/master/src/main/java/ru/breffi/storyclmsdk/Models/StoryContentPackage.java)
 
+### Сервис доступа к данным пользователя
+
+Коннектор (класс *StoryCLMServiceConnector*), полученный при аутентификации позволяет получить сервис доступа к пользовательским данным. Используется следующий метод:
+
+    public StoryCLMUserService GetUserService()
+
+**Описание:**
+Метод получения сервиса доступа к пользовательским данным.
+
+**Параметры**
+отсутствуют
+
+**Возвращаемое значение** 
+Сервис доступа к пользователям StoryCLM. Данный сервис предоставляет ряд методов для получения информации о пользователях, и управления ими.
+
+**Пример**
+      
+      StoryCLMUserService userService = clientConnector.GetUserService();
+
+**Методы доступа к данным пользователя**
+
+#### Метод  IAsyncResult\<CreateUser> Create(CreateUser user)
+**Описание**
+Создает пользователя в StoryCLM по модели *user*
+		
+**Параметры**
+CreateUser user - данные пользователя
+
+**Возвращаемое значение**  
+Объект класса *CreateUser*, содержащий данные о созданном пользователе, включая полученный идентификатор (поле id)
+
+#### Метод  IAsyncResult\<User> Update(User user)
+**Описание**
+Обновляет данные пользователя в StoryCLM по модели *user*
+		
+**Параметры**
+User user - новые данные пользователя
+
+**Возвращаемое значение**  
+Объект класса *User*, содержащий обновленные данные
+
+#### Метод  IAsyncResult\<SimpleUser[]> GetUsers()
+**Описание**
+Возвращает список краткой информации о всех пользователях клиента
+		
+**Параметры**
+отсутствуют
+
+**Возвращаемое значение**  
+Массив SimpleUser[], содержащий краткую информацию о пользователях
+
+#### Метод  IAsyncResult\<User> Exists(String username)
+**Описание**
+Проверяет наличие пользователя в системе StoryCLM
+		
+**Параметры**
+String username - имя пользователя
+
+**Возвращаемое значение**  
+Объект класса *User*, если пользователь существует и null в противном случае
+
+#### Метод  IAsyncResult\<User> Get(String userId)
+**Описание**
+Возвращает пользователя с идентификатором userId
+		
+**Параметры**
+String userId - идентификатор пользователя
+
+**Возвращаемое значение**  
+Объект класса *User*, содержащий данные пользователя
+
+
+#### Метод  IAsyncResult\<Void> UpdatePassword(String userId, Password password)
+**Описание**
+Обновляет пароль пользователя с идентификатором userId
+		
+**Параметры**
+String userId - идентификатор пользователя,
+Password password - новый пароль
+
+**Возвращаемое значение**  
+Void
+
+
+
+#### Метод IAsyncResult\<User> AddToGroup(String userId, Integer groupId)
+**Описание**
+Добавляет пользователя к группе
+		
+**Параметры**
+String userId - идентификатор пользователя,
+ Integer groupId - идентификатор группы
+
+**Возвращаемое значение**  
+Void
+
+
+#### Метод  IAsyncResult\<User> RemoveFromGroup(String userId, Integer groupId)
+**Описание**
+Удаляет пользователя из группы
+		
+**Параметры**
+String userId - идентификатор пользователя,
+ Integer groupId - идентификатор группы
+
+**Возвращаемое значение**  
+Void
+
+
+
+#### Метод IAsyncResult<Void> AddToPresentation(String userId, Integer presentationId)
+**Описание**
+Добавляет пользователя к презентации
+		
+**Параметры**
+String userId - идентификатор пользователя,
+ Integer presentationId - идентификатор презентации
+
+**Возвращаемое значение**  
+Void
+
+
+#### Метод  IAsyncResult\<Void> RemoveFromPresentation(String userId, Integer presentationId)
+**Описание**
+Удаляет пользователя из презентации
+		
+**Параметры**
+String userId - идентификатор пользователя,
+ Integer presentationId - идентификатор презентации
+
+**Возвращаемое значение**  
+Void	 
+
+#### Метод  IAsyncResult\<Presentation[]> GetPresentations( String userId)
+**Описание**
+ возвращает презентации, в которые добавлен пользователь
+
+**Параметры**
+String userId - идентификатор пользователя
+
+**Возвращаемое значение**  
+Массив презентаций	 Presentation[]
+
+#### Метод   IAsyncResult\<Group[]> GetGroups(String userId)
+**Описание**
+ возвращает группы, в которые добавлен пользователь
+
+**Параметры**
+String userId - идентификатор пользователя
+
+**Возвращаемое значение**  
+Массив групп	 Group[]
+	
+
 ### Сервисы доступа к таблицам
 
 Метод *GetTableService* коннектора (класс *StoryCLMServiceConnector*), служит фабрикой для получения сервисов строготипизированного доступа к конкретным таблицам клиента. Сигнатура метода:

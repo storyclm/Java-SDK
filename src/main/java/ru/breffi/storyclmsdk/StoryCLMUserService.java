@@ -44,11 +44,11 @@ public class StoryCLMUserService{
 		 return new ProxyCallResult<>(_storyCLMUserServiceRetrofit.UpdatePassword(userId,password));
 	 }
 	 
-	 public IAsyncResult<User> AddToGroup(String userId,Integer groupId){
+	 public IAsyncResult<Void> AddToGroup(String userId,Integer groupId){
 		 return new ProxyCallResult<>(_storyCLMUserServiceRetrofit.AddToGroup(userId,groupId));
 	 }
 	 
-	 public IAsyncResult<User> RemoveFromGroup(String userId, Integer groupId){
+	 public IAsyncResult<Void> RemoveFromGroup(String userId, Integer groupId){
 		 return new ProxyCallResult<>(_storyCLMUserServiceRetrofit.RemoveFromGroup(userId,groupId));
 	 }
 	 

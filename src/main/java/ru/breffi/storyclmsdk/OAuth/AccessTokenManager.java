@@ -37,6 +37,14 @@ class Error{
 		}
 		return _oauthService;
 	}
+	
+	/**
+	 * Отдает данные для авторизации пользователя (AuthEntity). В том числе токен доступа
+	 * Если пользователь еще не аутентифицирован, аутентифицирует его
+	 * Если срок действия токена вышел, обновляет его либо заново аутентифицируется
+	 * @return AuthEntity 
+	 * @throws IOException
+	 */
 	public AuthEntity getAuthEntity() throws IOException{
 		//Создать если нет
 		_authEntity = (_authEntity == null)?newAuthEntity():_authEntity;
