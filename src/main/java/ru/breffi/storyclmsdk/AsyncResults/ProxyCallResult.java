@@ -11,6 +11,7 @@ import ru.breffi.storyclmsdk.OnResultCallback;
 import ru.breffi.storyclmsdk.Exceptions.AsyncResultException;
 import ru.breffi.storyclmsdk.Exceptions.AuthFaliException;
 import ru.breffi.storyclmsdk.Exceptions.ResultServerException;
+import ru.breffi.storyclmsdk.converters.Converter;
 
 public class ProxyCallResult<Tin,Tout> implements IAsyncResult<Tout> {
 	private Call<Tin> jcall;
@@ -42,7 +43,7 @@ public class ProxyCallResult<Tin,Tout> implements IAsyncResult<Tout> {
 	public Tout GetResult() throws AsyncResultException, AuthFaliException {
 		try {
 			Response<Tin> response = jcall.execute();
-			if (!response.raw().isSuccessful()) throw new ResultServerException("Ошибка сервера: " + response.code() + ", "+ response.errorBody().string(), response.code());
+			if (!response.raw().isSuccessful()) throw new ResultServerException("Ошибка сервера: " + response.code() + ", "+ response.errorBody().string(), response.code(), response.errorBody().string());
 			if (response.code()==204)
 				return defaultResult;
 			return converter.Convert(response.body());
@@ -73,7 +74,14 @@ public class ProxyCallResult<Tin,Tout> implements IAsyncResult<Tout> {
 		         
 		         callback.OnSuccess(result);
 		        } else {
-		          callback.OnFail(null);
+		        	String errorBody = "";
+		        	try {
+						errorBody = response.errorBody().string();
+					} catch (IOException e) {
+						errorBody = "IOException during read errorbody";
+					}
+		        	Throwable error = new ResultServerException("Ошибка сервера: " + response.code() + ", "+ errorBody, response.code(), errorBody);
+					callback.OnFail(error);
 		        }
 		    }
 		    @Override

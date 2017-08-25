@@ -1,4 +1,4 @@
-package ru.breffi.storyclmsdk;
+package ru.breffi.storyclmsdk.retrofitservices;
 
 import retrofit2.Call;
 import retrofit2.http.GET;

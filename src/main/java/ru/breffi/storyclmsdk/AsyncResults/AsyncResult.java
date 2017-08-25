@@ -45,7 +45,7 @@ public AsyncResult(Call<J> jcall, Type classOfT, Gson gson){
 public T GetResult() throws AsyncResultException {
 	try {
 		Response<J> response = jcall.execute();
-		if (!response.raw().isSuccessful()) throw new ResultServerException("Ошибка сервера: " + response.errorBody().string(), response.code());
+		if (!response.raw().isSuccessful()) throw new ResultServerException("Ошибка сервера: " + response.errorBody().string(), response.code(), response.errorBody().string());
 		if (response.code()==204)
 			return defaultResult;
 		return gson.fromJson(response.body(), classOfT);
@@ -72,7 +72,7 @@ public void OnResult(final OnResultCallback<T> callback){
 				        } else {
 				        	String errorMessage = "невозможно прочитать сообщение об ошибке.";
 				        	try {errorMessage=response.errorBody().string();} catch (IOException e) {}
-				        	callback.OnFail(new ResultServerException("Ошибка сервера: " + errorMessage, response.code()));
+				        	callback.OnFail(new ResultServerException("Ошибка сервера: " + errorMessage, response.code(),errorMessage));
 				        }
 				    }
 				    @Override

@@ -4,4 +4,7 @@ public class AsyncResultContainer<T> {
 	public boolean completed = false;
 	public T result;
 	public boolean fail =false; 
+	public void Completed(){
+		completed = true;
+	}
 }

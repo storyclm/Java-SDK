@@ -1,4 +1,4 @@
-package ru.breffi.storyclmsdk;
+package ru.breffi.storyclmsdk.retrofitservices;
 
 import java.util.List;
 
@@ -70,7 +70,7 @@ public interface IStoryCLMTableServiceRetrofit{
 	 public Call<JsonObject> Delete(@Path("tableid") int tableid, @Path("id") String id);
 	
 	 @DELETE("tables/{tableid}/deletemany/")
-	 public Call<JsonArray> Delete(@Path("tableid") int tableid,  @Query("ids") List<String> ids);
+	 public Call<List<ApiLog>> Delete(@Path("tableid") int tableid,  @Query("ids") List<String> ids);
 
 	 //Aggregation
 

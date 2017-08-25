@@ -10,23 +10,24 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import ru.breffi.storyclmsdk.AsyncResults.AsyncResult;
-import ru.breffi.storyclmsdk.AsyncResults.Converter;
 import ru.breffi.storyclmsdk.AsyncResults.FinalAsyncResult;
 import ru.breffi.storyclmsdk.AsyncResults.FinalValue;
 import ru.breffi.storyclmsdk.AsyncResults.IAsyncResult;
 import ru.breffi.storyclmsdk.AsyncResults.ProxyCallResult;
 import ru.breffi.storyclmsdk.AsyncResults.SequanceChainCallResult;
-import ru.breffi.storyclmsdk.AsyncResults.SingleValueConverter;
 import ru.breffi.storyclmsdk.Exceptions.AsyncResultException;
 import ru.breffi.storyclmsdk.Exceptions.AuthFaliException;
 import ru.breffi.storyclmsdk.Models.ApiLog;
 import ru.breffi.storyclmsdk.Models.ApiTable;
+import ru.breffi.storyclmsdk.converters.Converter;
+import ru.breffi.storyclmsdk.converters.SingleValueConverter;
+import ru.breffi.storyclmsdk.retrofitservices.IStoryCLMTableServiceRetrofit;
 
 
 
 public class StoryCLMTableService<T> {
 
-	Converter<JsonObject,Long> j2intConverter = new Converter<JsonObject, Long>() {
+	Converter<JsonObject,Long> jCount2intConverter = new Converter<JsonObject, Long>() {
 		@Override
 		public Long Convert(JsonObject in) {
 			return in.get("count").getAsLong();}
@@ -39,7 +40,7 @@ public class StoryCLMTableService<T> {
 	private IStoryCLMTableServiceRetrofit service;
 	private int tableid;
 	
-	protected StoryCLMTableService(Type classOfT, IStoryCLMTableServiceRetrofit service, Gson gson, int tableId){
+	public StoryCLMTableService(Type classOfT, IStoryCLMTableServiceRetrofit service, Gson gson, int tableId){
 		
 		this.classOfT = classOfT;
 		this.service = service;
@@ -72,19 +73,19 @@ public class StoryCLMTableService<T> {
 	 
 	
 	 public IAsyncResult<Long> Count(){
-		 return new ProxyCallResult<>(service.Count(tableid), j2intConverter);
+		 return new ProxyCallResult<>(service.Count(tableid), jCount2intConverter);
 	 }
 	 
 	 public IAsyncResult<Long> CountByQuery(String query){
-		 return new ProxyCallResult<>(service.CountByQuery(tableid,  query),j2intConverter);
+		 return new ProxyCallResult<>(service.CountByQuery(tableid,  query),jCount2intConverter);
 	 }
 	 
 	 public IAsyncResult<Long> CountByLog(){
-		 return new ProxyCallResult<>(service.CountByLog(tableid),j2intConverter);
+		 return new ProxyCallResult<>(service.CountByLog(tableid),jCount2intConverter);
 	 }
 	 
 	 public IAsyncResult<Long> CountByLog(Date date){
-		 return new ProxyCallResult<>(service.CountByLog(tableid, date.getTime()/1000),j2intConverter);
+		 return new ProxyCallResult<>(service.CountByLog(tableid, date.getTime()/1000),jCount2intConverter);
 	 }
 
 
@@ -159,7 +160,7 @@ public class StoryCLMTableService<T> {
 	 
 	 public IAsyncResult<List<ApiLog>> Delete(List<String> ids){
 		 if (ids.size()>maxIdsInUrl) return Delete(ids,maxIdsInUrl);
-		 return new AsyncResult<>(service.Delete(tableid, ids), genericListTypeOfT, gson);
+		 return new ProxyCallResult<>(service.Delete(tableid, ids));
 	 }
 	 
 	 

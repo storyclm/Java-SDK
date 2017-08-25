@@ -7,6 +7,7 @@ import ru.breffi.storyclmsdk.Models.StoryContentPackage;
 import ru.breffi.storyclmsdk.Models.StoryMediafile;
 import ru.breffi.storyclmsdk.Models.StoryPresentation;
 import ru.breffi.storyclmsdk.Models.StorySlide;
+import ru.breffi.storyclmsdk.retrofitservices.IStoryCLMContentServiceRetrofit;
 
 public class StoryCLMContentService{
 	final private IStoryCLMContentServiceRetrofit _storyCLMContentServiceRetrofit;
@@ -14,9 +15,7 @@ public class StoryCLMContentService{
 	{
 		 _storyCLMContentServiceRetrofit = storyCLMContentServiceRetrofit;
 	}
-	
-
-	 
+		 
 	 public IAsyncResult<Client[]> GetClients(){
 		 return new ProxyCallResult<>(_storyCLMContentServiceRetrofit.GetClients());
 	 }

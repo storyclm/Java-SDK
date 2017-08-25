@@ -40,11 +40,16 @@ public class StoryDateTypeAdapter  implements JsonSerializer<Date>, JsonDeserial
 	      {
 	    	  String jsonEl = jsonElement.getAsString();
 	    	  //В случае прихода урезанной даты
-	    	  if (jsonEl.length()!=24){
-		    	  jsonEl = jsonEl.substring(0,jsonEl.length()-1);
-		    	  int restcount = 23 - jsonEl.length();
-		    	  String restPattern = ".000Z";
-		    	  jsonEl+=restPattern.substring(restPattern.length()-1-restcount, restPattern.length());
+	    	/*  if (jsonEl.length()==19){ //1970-01-01T00:00:00
+	    		  jsonEl+=".000Z";
+	    	  }*/
+	    	  int minus = (jsonEl.endsWith("Z"))?1:0; 
+	    	  //else 
+	    		  if (jsonEl.length()!=24){//2017-08-24T12:35:33.403
+			    	  jsonEl = jsonEl.substring(0,jsonEl.length()-minus);
+			    	  int restcount = 23 - jsonEl.length();
+			    	  String restPattern = ".000Z";
+			    	  jsonEl+=restPattern.substring(restPattern.length()-1-restcount, restPattern.length());
 	    	  }
 	    	  return dateFormat.parse(jsonEl);
 	    	 

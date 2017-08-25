@@ -4,9 +4,11 @@ package ru.breffi.storyclmsdk.Exceptions;
 public class ResultServerException extends AsyncResultException {
 
 	public int Code;
-	public ResultServerException(String message, int code) {
+	public String ErrorBody;
+	public ResultServerException(String message, int code, String errorBody) {
 		super(message,null);
 		Code = code;
+		ErrorBody = errorBody;
 		// TODO Auto-generated constructor stub
 	}
 

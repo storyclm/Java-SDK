@@ -25,19 +25,7 @@ public class OAuthInterceptor implements Interceptor {
                    .method(original.method(), original.body());
 
            Request request = requestBuilder.build();
-         /*  try{
-        	   
-           
-          System.out.println(original.url());
-           System.out.println(original.body());
-     
-           System.out.println(original.body().contentLength());
-           System.out.println(original.body().contentType());
-           }
-           catch(Exception ex){
-        	   
-           }
-           //System.out.println(original.body);*/
+        
            return chain.proceed(request);
        }
 }

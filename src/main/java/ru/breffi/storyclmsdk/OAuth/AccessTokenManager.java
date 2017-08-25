@@ -37,12 +37,12 @@ class Error{
 		}
 		return _oauthService;
 	}
-	private AuthEntity getAuthEntity() throws IOException{
+	public AuthEntity getAuthEntity() throws IOException{
 		//Создать если нет
 		_authEntity = (_authEntity == null)?newAuthEntity():_authEntity;
 		
 		//Проверим на срок
-		if ((_authEntity.expires_date!=null) && _authEntity.expires_date.after(new Date())) RefreshToken();
+		if ((_authEntity.expires_date!=null) && _authEntity.expires_date.before(new Date())) RefreshToken();
 		
 		
 		return _authEntity;
@@ -63,7 +63,7 @@ class Error{
 				
 				Calendar c = Calendar.getInstance(); 
 				c.setTime(new Date()); 
-				c.add(Calendar.MILLISECOND, aentity.expires_in);	
+				c.add(Calendar.SECOND, aentity.expires_in);	
 				aentity.expires_date =c.getTime();
 				
 			}

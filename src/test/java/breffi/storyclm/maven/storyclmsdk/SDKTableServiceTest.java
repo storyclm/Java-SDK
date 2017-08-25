@@ -12,13 +12,13 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import ru.breffi.storyclmsdk.OnResultCallback;
 import ru.breffi.storyclmsdk.StoryCLMConnectorsGenerator;
-import ru.breffi.storyclmsdk.StoryCLMServiceConnector;
 import ru.breffi.storyclmsdk.StoryCLMTableService;
 import ru.breffi.storyclmsdk.AsyncResults.IAsyncResult;
 import ru.breffi.storyclmsdk.Exceptions.AsyncResultException;
 import ru.breffi.storyclmsdk.Exceptions.AuthFaliException;
 import ru.breffi.storyclmsdk.Models.ApiLog;
 import ru.breffi.storyclmsdk.Models.ApiTable;
+import ru.breffi.storyclmsdk.connectors.StoryCLMServiceConnector;
 
 
 
@@ -40,7 +40,7 @@ public class SDKTableServiceTest
     public SDKTableServiceTest( String testName )
     {
         super( testName );
-        clientConnector=  StoryCLMConnectorsGenerator.GetStoryCLMServiceConnector("client_18_1", "d17ac10538ec402b9e2355dd3e2be0332b7f9dfa086645f3adcbff8c7208c94d",null, null, null);
+        clientConnector=  StoryCLMConnectorsGenerator.CreateStoryCLMServiceConnector("client_18_1", "d17ac10538ec402b9e2355dd3e2be0332b7f9dfa086645f3adcbff8c7208c94d",null, null, null);
     	StoryCLMProfileService = clientConnector.GetTableService(Profile.class, 23);
     }
 
