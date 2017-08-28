@@ -31,20 +31,22 @@ public class StoryCLMTableServiceRetrofitProxy<T> {
 		};
 	
 		
-	private Type classOfT;
+	
 	private GenericListType<T> genericListTypeOfT;
 	private Gson gson;
 	private IStoryCLMTableServiceRetrofit service;
 	private int tableid;
 	
-	Converter<JsonObject,T> fromJsonObject = new FromJsonGenericConverter<JsonObject,T>(gson,classOfT);
-	Converter<JsonArray,List<T>> fromJsonArray = new FromJsonGenericConverter<JsonArray,List<T>>(gson,genericListTypeOfT);
-	public StoryCLMTableServiceRetrofitProxy(Type classOfT, IStoryCLMTableServiceRetrofit service, Gson gson, int tableId){		
-		this.classOfT = classOfT;
+	Converter<JsonObject,T> fromJsonObject;
+	Converter<JsonArray,List<T>> fromJsonArray;
+	public StoryCLMTableServiceRetrofitProxy(Type classOfT, IStoryCLMTableServiceRetrofit service, Gson gson, int tableId){	
 		this.service = service;
 		this.gson = gson;
 		genericListTypeOfT = new GenericListType<T>(classOfT);
 		this.tableid = tableId;
+		fromJsonObject = new FromJsonGenericConverter<JsonObject,T>(gson,classOfT);
+		fromJsonArray = new FromJsonGenericConverter<JsonArray,List<T>>(gson,genericListTypeOfT);
+
 	}
 	
 	public Call<ApiTable[]> GetTables(int clientid){

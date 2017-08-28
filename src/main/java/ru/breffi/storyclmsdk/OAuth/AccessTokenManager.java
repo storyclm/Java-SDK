@@ -71,7 +71,7 @@ class Error{
 				
 				Calendar c = Calendar.getInstance(); 
 				c.setTime(new Date()); 
-				c.add(Calendar.SECOND, aentity.expires_in);	
+				c.add(Calendar.SECOND, aentity.expires_in-5);	
 				aentity.expires_date =c.getTime();
 				
 			}
@@ -96,13 +96,7 @@ class Error{
     public String  getAccessToken() throws IOException {
     	return getAuthEntity().access_token;
     }
-public AccessTokenManager UpdateSecretId(String client_secret) throws IOException{
-	if (client_secret!= this.client_secret){
-		this.client_secret = client_secret;
-		this.RefreshToken();
-	}
-	return this;
-}
+
     
     public String getTokenType() throws IOException{
         // OAuth requires uppercase Authorization HTTP header value for token type
