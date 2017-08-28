@@ -48,7 +48,7 @@ public class SDKUserServiceTest extends TestCase{
     
     	
     	User actual  = userService.Exists(expectedCreateUser.username).GetResult();
-    	Assert.assertNull("Пользователь присутствует в системе. Для корректного прохождения теста пользователя необходимо удалить!",actual);
+    	Assert.assertNull("Пользователь "+ userName +" присутствует в системе. Для корректного прохождения теста пользователя необходимо удалить!",actual);
     	final AsyncResultContainer<User> resultContainer = new AsyncResultContainer<User>();
     	userService.Exists(expectedCreateUser.username).OnResult(new  OnResultCallback<User>() {
 			@Override

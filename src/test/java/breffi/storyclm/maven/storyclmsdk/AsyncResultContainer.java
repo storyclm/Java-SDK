@@ -7,4 +7,7 @@ public class AsyncResultContainer<T> {
 	public void Completed(){
 		completed = true;
 	}
+	public void Failed(){
+		fail = true;
+	}
 }

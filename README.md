@@ -79,11 +79,21 @@ import ru.breffi.storyclmsdk.Exceptions.*;
 
 Пример 
 
-    StoryCLMServiceConnector clientConnector = GetStoryCLMServiceConnector("your_сlientId", "your_сlientSecret", null);
+    StoryCLMServiceConnector clientConnector = GetStoryCLMServiceConnector("your_сlientId", "your_сlientSecret","user_login","user_password", null);
 
 В данном примере дополнительная настройка конвертации *GsonBuilder* не требуется.
 
 Коннектор используется для получения сервисов доступа к контенту (презентации, слайды, медиафайлы) и доступа к таблицам.
+
+### Токен доступа 
+
+Коннектор предоставляет сервисы работы с системой StoryCLM, которые описаны ниже. Помимо этого он позволяет получить токен доступа для авторизации на ресурсах, использующих  StoryCLM SSO (Single Sign-On). Для этого используется метод *getAccessTokenManager()* , возвращающий объект класса *AccessTokenManager*. Данный менеджер используется для аутентификации в StoryCLM. Его метод *getAuthority()* возвращает данные для авторизации, в том числе токен доступа. Перед возвращением токен проверяется на время жизни и при необходимости обновляется.
+
+Пример 
+    
+    StoryCLMServiceConnector clientConnector = StoryCLMConnectorsGenerator.GetStoryCLMServiceConnector("your_сlientId", "your_сlientSecret", "login", "password", null);
+    AccessTokenManager accessTokenManager = clientConnector.getAccessTokenManager();
+    String access_token = accessTokenManager.getAuthEntity().access_token;
 
 ### Сервис доступа к контенту
 Коннектор, полученный при аутентификации на предыдущем шаге позволяет получить сервис доступа к контенту. Используется следующий метод:
