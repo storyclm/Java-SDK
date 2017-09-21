@@ -60,7 +60,7 @@ public class StoryCLMConnectorsGenerator {
     	 * @param password - пароль (если нет - null)
     	 * @param gBuilder - билдер для настройки Gson конвертера (null - если настройка не требуется)
     	 * @return Коннектор используется для создания конкретных типизированных сервисов для работы с конкретными таблицами клиента.
-    	 * @throws IOException
+    	 * 
     	 */
     	public static RetrofitConnector CreateRetrofitConnector(String client_id, String client_secret,String user_name, String password, GsonBuilder gBuilder) {
     		AccessTokenManager accessTokenManager = new AccessTokenManager(client_id, client_secret, user_name, password);

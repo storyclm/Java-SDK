@@ -8,7 +8,7 @@ public interface IAsyncResult<T> {
 
 	/**
 	 * Возвращает данные в синхронном режиме. Результат непосредственно необходимое значение 
-	 * @return
+	 * @return Строготипизрованный результат запроса
 	 * @throws AsyncResultException  ошибка при получении данных
 	 * @throws AuthFaliException ошибка аутентификации
 	 */

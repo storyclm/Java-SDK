@@ -68,5 +68,19 @@ public class StoryCLMUserService{
 		 return new ProxyCallResult<>(_storyCLMUserServiceRetrofit.GetGroups(userId));
 	 }
 
+	 
+	 
+	 public IAsyncResult<int[]> AddToPresentations(String userId, Integer[] presentationsIds){
+		 return new ProxyCallResult<>(_storyCLMUserServiceRetrofit.AddToPresentations(userId,presentationsIds));
+	 }
+
+	 public IAsyncResult<int[]> RemoveFromPresentations( String userId, Integer[] presentationsIds){
+		 return new ProxyCallResult<>(_storyCLMUserServiceRetrofit.RemoveFromPresentations(userId,presentationsIds));
+	 }
+	
+	 public IAsyncResult<int[]> SetUserPresentations(String userId, Integer[] presentationsIds){
+		 return new ProxyCallResult<>(_storyCLMUserServiceRetrofit.SetUserPresentations(userId,presentationsIds));
+	 }
+
 
 }

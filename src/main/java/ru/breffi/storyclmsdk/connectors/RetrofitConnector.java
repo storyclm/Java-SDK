@@ -13,7 +13,7 @@ import ru.breffi.storyclmsdk.retrofitservices.IStoryCLMUserServiceRetrofit;
 
 /**
  * Коннектор, предоставляющий сервисы работы с ресурсами StoryCLM, совместимые с сервисами Retrofit2
- * Методы сервисов возвращают интерфейс retrofit2.Call<T>, предоставляющий функциональность асинхронного вызова.
+ * Методы сервисов возвращают интерфейс retrofit2.Call, предоставляющий функциональность асинхронного вызова.
  * Коннектор позволяет подключаться к другим сервисам, использующим OAuth аутентификацию StoryCLM (см. метод createResourceService)
  * @author tselo
  *

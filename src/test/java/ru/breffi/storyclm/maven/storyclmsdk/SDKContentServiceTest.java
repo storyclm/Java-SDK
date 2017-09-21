@@ -1,8 +1,13 @@
-package breffi.storyclm.maven.storyclmsdk;
+package ru.breffi.storyclm.maven.storyclmsdk;
 
 
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
+import junit.framework.Assert;
 import junit.framework.Test;
+import ru.breffi.storyclmsdk.Models.PresentationUser;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import ru.breffi.storyclmsdk.OnResultCallback;
@@ -29,6 +34,8 @@ public class SDKContentServiceTest
     }
 	
 	int presentationId = 4991;
+	String[] usersIds=new String[]{"31e806b7-56b2-4560-ad39-2fa1a382a9d2"};
+	String myUSer = "df01866d-0c9c-428d-bd90-3ecf52220d72";
     /**
      * Rigourous Test :-)
      * @throws Exception 
@@ -51,6 +58,23 @@ public class SDKContentServiceTest
     	StorySlide slide = contentService.GetSlide(presentation.slides[0].id).GetResult();
     	assertEquals(slide.id, presentation.slides[0].id);
     	
+    	PresentationUser[] users = contentService.GetPresentationUsers(presentationId).GetResult();
+    	String[] userIds = Arrays.asList(users).stream().map(x->x.id).filter(x->!x.equals(myUSer)).collect(Collectors.toList()).toArray(new String[0]);
+    	users = contentService.RemovePresentationUsers(presentationId, userIds).GetResult();
+    	Assert.assertEquals(1, users.length);
+    	
+    	users = contentService.AddPresentationUsers(presentationId, usersIds).GetResult();
+    	Assert.assertEquals(2, users.length);
+    	Assert.assertTrue(Arrays.asList(users).stream().anyMatch(x->x.id.equals(userIds[0])));
+    	
+    	users = contentService.RemovePresentationUsers(presentationId, userIds).GetResult();
+    	Assert.assertEquals(1, users.length);
+    	
+    	users = contentService.AddPresentationUsers(presentationId, usersIds).GetResult();
+    	Assert.assertEquals(2, users.length);
+    	users = contentService.SetPresentationUsers(presentationId, new String[]{myUSer}).GetResult();
+    	Assert.assertEquals(1, users.length);
+    	Assert.assertEquals(myUSer, users[0].id);
     	
     	
     	//Пример асинхронного вызова

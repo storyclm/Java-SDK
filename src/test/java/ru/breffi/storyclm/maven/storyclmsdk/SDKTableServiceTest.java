@@ -1,4 +1,4 @@
-package breffi.storyclm.maven.storyclmsdk;
+package ru.breffi.storyclm.maven.storyclmsdk;
 
 import java.util.ArrayList;
 import java.util.Calendar;

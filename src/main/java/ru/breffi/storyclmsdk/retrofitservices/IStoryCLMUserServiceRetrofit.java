@@ -54,5 +54,17 @@ public interface IStoryCLMUserServiceRetrofit {
 	 
 	 @GET("users/{userId}/groups")
 	 public Call<Group[]> GetGroups(@Path("userId") String userId);
+	 
+	 @POST("users/{userId}/presentations")
+	 public Call<int[]> AddToPresentations(@Path("userId") String userId,@Body Integer[] presentationsIds);
+
+	 @DELETE("users/{userId}/presentations/")
+	 public Call<int[]> RemoveFromPresentations(@Path("userId") String userId,@Query("ids") Integer[] presentationsIds);
+
+	 @PUT("users/{userId}/presentations")
+	 public Call<int[]> SetUserPresentations(@Path("userId") String userId,@Body Integer[] presentationsIds);
+
+	 
+	 
 
 }

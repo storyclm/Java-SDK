@@ -3,6 +3,7 @@ package ru.breffi.storyclmsdk;
 import ru.breffi.storyclmsdk.AsyncResults.IAsyncResult;
 import ru.breffi.storyclmsdk.AsyncResults.ProxyCallResult;
 import ru.breffi.storyclmsdk.Models.Client;
+import ru.breffi.storyclmsdk.Models.PresentationUser;
 import ru.breffi.storyclmsdk.Models.StoryContentPackage;
 import ru.breffi.storyclmsdk.Models.StoryMediafile;
 import ru.breffi.storyclmsdk.Models.StoryPresentation;
@@ -47,6 +48,25 @@ public class StoryCLMContentService{
 	 public IAsyncResult<StoryContentPackage> GetСontentpackage(int presentationId)
 	 {
 		 return new ProxyCallResult<>(_storyCLMContentServiceRetrofit.GetСontentpackage(presentationId));
+	 }
+	 
+	
+	 public IAsyncResult<PresentationUser[]> GetPresentationUsers(int presentationId){
+		 return new ProxyCallResult<>(_storyCLMContentServiceRetrofit.GetPresentationUsers(presentationId));
+	 }
+
+	 public IAsyncResult<PresentationUser[]> AddPresentationUsers(int presentationId, String[] usersIds){
+		 return new ProxyCallResult<>(_storyCLMContentServiceRetrofit.AddPresentationUsers(presentationId,usersIds));
+	 }
+
+	 public IAsyncResult<PresentationUser[]> RemovePresentationUsers(int presentationId, String[] usersIds)
+	 {
+		 return new ProxyCallResult<>(_storyCLMContentServiceRetrofit.RemovePresentationUsers(presentationId,usersIds));
+	 }
+	 
+	 
+	 public  IAsyncResult<PresentationUser[]> SetPresentationUsers(int presentationId, String[] usersIds){
+		 return new ProxyCallResult<>(_storyCLMContentServiceRetrofit.SetPresentationUsers(presentationId,usersIds)); 
 	 }
 
 }

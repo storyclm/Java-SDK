@@ -1,8 +1,9 @@
-package breffi.storyclm.maven.storyclmsdk;
+package ru.breffi.storyclm.maven.storyclmsdk;
 
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import junit.framework.Assert;
 import junit.framework.Test;
@@ -33,11 +34,12 @@ public class SDKUserServiceTest extends TestCase{
     {
         return new TestSuite( SDKUserServiceTest.class );
     }
+	//final String userId = "31e806b7-56b2-4560-ad39-2fa1a382a9d2";
 	final String userName = "79188628061";
 	final String oldPassword = "1234";
 	final String newPassword = "new password";
 	final Integer groupId = 88;
-	final Integer presentationId = 4991;
+	final int presentationId = 4991;
 	public void testUpdateUser() throws Exception{
 		
 		StoryCLMServiceConnector clientConnector =  StoryCLMConnectorsGenerator.CreateStoryCLMServiceConnector("client_18_4", "1cdbbf4374634314bfd5607a79a0b5578d05130732dc4a37ac8c046525a27075","tselofan1@yandex.ru", "jTL96D", null);;
@@ -77,10 +79,12 @@ public class SDKUserServiceTest extends TestCase{
     	expectedCreateUser.id = actual.id;
     	ReflectionAssert.assertReflectionEquals(actual, (User)expectedCreateUser);
     	expectedUser = expectedCreateUser;
-	
+    	clientConnector.getAccessTokenManager().getAuthEntity().access_token = "11";
+    	
+    	
     	//попробуем аутентифицироваться новым пользователем
 		StoryCLMServiceConnector connectorForNewUser =  StoryCLMConnectorsGenerator.CreateStoryCLMServiceConnector("client_18_4", "1cdbbf4374634314bfd5607a79a0b5578d05130732dc4a37ac8c046525a27075",expectedCreateUser.username, expectedCreateUser.password, null);
-    	String accessToken = connectorForNewUser.getAccessTokenManager().getAccessToken();
+    	String accessToken = connectorForNewUser.getAccessTokenManager().getAuthEntity().access_token;
       	assertNotNull(accessToken);
     	
     	expectedUser = updatedUser(expectedUser.id);
@@ -123,7 +127,24 @@ public class SDKUserServiceTest extends TestCase{
 		userService.RemoveFromPresentation(expectedUser.id, presentationId).GetResult();
 		presentations = Arrays.asList(userService.GetPresentations(expectedUser.id).GetResult());
 		assertFalse(presentations.stream().anyMatch(x->x.id.equals(presentationId)));
-				
+	
+		int [] presids=null;
+		if (presentations.size()>0) 
+			{
+			presids = userService.RemoveFromPresentations(expectedUser.id, presentations.stream().map(x->x.id).collect(Collectors.toList()).toArray(new Integer[0])).GetResult();
+			assertEquals(0, presids.length);
+			}
+		
+		presids = userService.AddToPresentations(expectedUser.id, new Integer[]{presentationId}).GetResult();
+		assertEquals(1, presids.length);
+		assertEquals(presids[0],presentationId);
+		presids = userService.RemoveFromPresentations(expectedUser.id, new Integer[]{presentationId}).GetResult();
+		assertEquals(0, presids.length);
+		
+		presids = userService.AddToPresentations(expectedUser.id, new Integer[]{presentationId}).GetResult();
+		assertEquals(1, presids.length);
+		presids = userService.SetUserPresentations(expectedUser.id, new Integer[0]).GetResult();
+		assertEquals(0, presids.length);
 	}
 	
 	
