@@ -74,6 +74,8 @@ public class SDKTableServiceTest
     	//Создаем сервис для Profile
     	StoryCLMProfileService = clientConnector.GetTableService(Profile.class, 67);
     	
+    	ApiTable[] clienttables =  clientConnector.GetTables().GetResult();
+    	StoryCLMProfileService = clientConnector.<Profile>GetTableService(Profile.class, "Profile").GetResult();
     	long count = StoryCLMProfileService.Count().GetResult();
     	if (count>0){
     	

@@ -14,6 +14,7 @@ import ru.breffi.storyclmsdk.AsyncResults.FinalAsyncResult;
 import ru.breffi.storyclmsdk.AsyncResults.FinalValue;
 import ru.breffi.storyclmsdk.AsyncResults.IAsyncResult;
 import ru.breffi.storyclmsdk.AsyncResults.ProxyCallResult;
+import ru.breffi.storyclmsdk.AsyncResults.ProxyConvertCallResult;
 import ru.breffi.storyclmsdk.AsyncResults.SequanceChainCallResult;
 import ru.breffi.storyclmsdk.Exceptions.AsyncResultException;
 import ru.breffi.storyclmsdk.Exceptions.AuthFaliException;
@@ -73,19 +74,19 @@ public class StoryCLMTableService<T> {
 	 
 	
 	 public IAsyncResult<Long> Count(){
-		 return new ProxyCallResult<>(service.Count(tableid), jCount2intConverter);
+		 return new ProxyConvertCallResult<>(service.Count(tableid), jCount2intConverter);
 	 }
 	 
 	 public IAsyncResult<Long> CountByQuery(String query){
-		 return new ProxyCallResult<>(service.CountByQuery(tableid,  query),jCount2intConverter);
+		 return new ProxyConvertCallResult<>(service.CountByQuery(tableid,  query),jCount2intConverter);
 	 }
 	 
 	 public IAsyncResult<Long> CountByLog(){
-		 return new ProxyCallResult<>(service.CountByLog(tableid),jCount2intConverter);
+		 return new ProxyConvertCallResult<>(service.CountByLog(tableid),jCount2intConverter);
 	 }
 	 
 	 public IAsyncResult<Long> CountByLog(Date date){
-		 return new ProxyCallResult<>(service.CountByLog(tableid, date.getTime()/1000),jCount2intConverter);
+		 return new ProxyConvertCallResult<>(service.CountByLog(tableid, date.getTime()/1000),jCount2intConverter);
 	 }
 
 
@@ -188,7 +189,7 @@ public class StoryCLMTableService<T> {
 	 
 	
 	 public <R> IAsyncResult<R> Max(String field,String query, Class<R> resultType){
-		 return new ProxyCallResult<>(service.Max(tableid,field, query), new SingleValueConverter<R>(gson, resultType));
+		 return new ProxyConvertCallResult<>(service.Max(tableid,field, query), new SingleValueConverter<R>(gson, resultType));
 	 }
 	 
 	 
@@ -211,23 +212,23 @@ public class StoryCLMTableService<T> {
 	 }*/
 
 	 public <R> IAsyncResult<R> Min(String field,String query, Class<R> resultType){
-		 return new ProxyCallResult<>(service.Min(tableid,field, query), new SingleValueConverter<R>(gson, resultType));
+		 return new ProxyConvertCallResult<>(service.Min(tableid,field, query), new SingleValueConverter<R>(gson, resultType));
 	 }
 	 
 	 public <R> IAsyncResult<R> MinOrDefault(String field,String query, Class<R> resultType,R defaultResult){
-		 return new ProxyCallResult<>(service.Min(tableid,field, query), new SingleValueConverter<R>(gson, resultType), defaultResult);
+		 return new ProxyConvertCallResult<>(service.Min(tableid,field, query), new SingleValueConverter<R>(gson, resultType), defaultResult);
 	 }  
 	 
 	 public <R> IAsyncResult<R> MaxOrDefault(String field,String query, Class<R> resultType,R defaultResult){
-		 return new ProxyCallResult<>(service.Max(tableid,field, query), new SingleValueConverter<R>(gson, resultType), defaultResult);
+		 return new ProxyConvertCallResult<>(service.Max(tableid,field, query), new SingleValueConverter<R>(gson, resultType), defaultResult);
 	 }  
 	 
 	 
 	 public <R> IAsyncResult<R> SumOrDefault(String field,String query, Class<R> resultType,R defaultResult){
-		 return new ProxyCallResult<>(service.Sum(tableid,field, query), new SingleValueConverter<R>(gson, resultType), defaultResult);
+		 return new ProxyConvertCallResult<>(service.Sum(tableid,field, query), new SingleValueConverter<R>(gson, resultType), defaultResult);
 	 }
 	 public <R> IAsyncResult<R> AvgOrDefault(String field,String query, Class<R> resultType, R defaultResult){
-		 return new ProxyCallResult<>(service.Avg(tableid,field, query), new SingleValueConverter<R>(gson, resultType), defaultResult);
+		 return new ProxyConvertCallResult<>(service.Avg(tableid,field, query), new SingleValueConverter<R>(gson, resultType), defaultResult);
 	 }
 	 
 	 public  IAsyncResult<T> FirstOrDefault(String query,  String sortfield, Integer sort, T defaultResult){

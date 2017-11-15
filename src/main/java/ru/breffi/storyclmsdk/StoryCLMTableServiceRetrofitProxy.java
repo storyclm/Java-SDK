@@ -15,7 +15,6 @@ import ru.breffi.storyclmsdk.Calls.ProxyConvertCall;
 import ru.breffi.storyclmsdk.Models.ApiLog;
 import ru.breffi.storyclmsdk.Models.ApiTable;
 import ru.breffi.storyclmsdk.converters.Converter;
-import ru.breffi.storyclmsdk.converters.FromJsonGenericConverter;
 import ru.breffi.storyclmsdk.converters.SingleValueConverter;
 import ru.breffi.storyclmsdk.retrofitservices.IStoryCLMTableServiceRetrofit;
 
@@ -24,15 +23,11 @@ import ru.breffi.storyclmsdk.retrofitservices.IStoryCLMTableServiceRetrofit;
 public class StoryCLMTableServiceRetrofitProxy<T> {
 	
 	
-	Converter<JsonObject,Long> jCount2intConverter = new Converter<JsonObject, Long>() {
-		@Override
-		public Long Convert(JsonObject in) {
-			return in.get("count").getAsLong();}
-		};
+	Converter<JsonObject,Long> jCount2intConverter = (in)-> in.get("count").getAsLong();
+		
 	
 		
 	
-	private GenericListType<T> genericListTypeOfT;
 	private Gson gson;
 	private IStoryCLMTableServiceRetrofit service;
 	private int tableid;
@@ -42,11 +37,10 @@ public class StoryCLMTableServiceRetrofitProxy<T> {
 	public StoryCLMTableServiceRetrofitProxy(Type classOfT, IStoryCLMTableServiceRetrofit service, Gson gson, int tableId){	
 		this.service = service;
 		this.gson = gson;
-		genericListTypeOfT = new GenericListType<T>(classOfT);
 		this.tableid = tableId;
-		fromJsonObject = new FromJsonGenericConverter<JsonObject,T>(gson,classOfT);
-		fromJsonArray = new FromJsonGenericConverter<JsonArray,List<T>>(gson,genericListTypeOfT);
-
+		GenericListType<T> genericListTypeOfT = new GenericListType<T>(classOfT);
+		fromJsonObject = (t)->gson.fromJson(t,classOfT);
+		fromJsonArray =(t)->gson.fromJson(t,genericListTypeOfT);
 	}
 	
 	public Call<ApiTable[]> GetTables(int clientid){

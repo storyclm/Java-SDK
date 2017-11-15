@@ -3,9 +3,15 @@ package ru.breffi.storyclmsdk.OAuth;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.concurrent.TimeoutException;
 
+
+import retrofit2.Call;
 import retrofit2.HttpException;
 import retrofit2.Response;
+import ru.breffi.storyclmsdk.Calls.ProxyCheckerCall;
+import ru.breffi.storyclmsdk.Calls.ProxyConvertCall;
+import ru.breffi.storyclmsdk.Calls.SyncCall;
 import ru.breffi.storyclmsdk.Exceptions.AuthFaliException;
 import ru.breffi.storyclmsdk.Exceptions.InvalidClientException;
 
@@ -37,30 +43,63 @@ class Error{
 		}
 		return _oauthService;
 	}
-	
+
+	public Call<AuthEntity> checkAndReturnAuthEntityAsync() {
+	 return checkAndReturnAuthEntityAsync(false);
+	}
 	/**
 	 * Отдает данные для авторизации пользователя (AuthEntity). В том числе токен доступа
 	 * Если пользователь еще не аутентифицирован, аутентифицирует его
 	 * Если срок действия токена вышел, обновляет его либо заново аутентифицируется
+	 * * @param forceRefresh 
+	 * force refresh token 
 	 * @return AuthEntity 
-	 * @throws IOException
 	 */
-	public AuthEntity getAuthEntity() throws IOException{
-		//Создать если нет
-		_authEntity = (_authEntity == null)?newAuthEntity():_authEntity;
-		
-		//Проверим на срок
-		if ((_authEntity.expires_date!=null) && _authEntity.expires_date.before(new Date())) RefreshToken();
-		
-		
-		return _authEntity;
+	public Call<AuthEntity> checkAndReturnAuthEntityAsync(boolean forceRefresh) {
+		AccessTokenManager self = this;
+		Call<AuthEntity> call = null;
+		if (_authEntity == null) 
+			call = (getOAuthService().getNewAuthEntity(client_id, client_secret, user_name, password, getGrantType()));
+		else if (forceRefresh || (_authEntity.expires_date!=null) && _authEntity.expires_date.before(new Date()))
+			call = getOAuthService().getRefreshedAuthEntity(client_id, client_secret, _authEntity.refresh_token,"refresh_token");
+		if (call != null)
+			return new ProxyCheckerCall<AuthEntity>(call)
+					{
+						@Override
+						public AuthEntity returnThisIfNotNull() {
+							synchronized (self) {
+								int i=0;
+								while (self.busy)
+								{
+									try { Thread.sleep(500); } catch (InterruptedException e) {throw new RuntimeException(e);}
+									if (++i>240) throw new RuntimeException(new TimeoutException("Can't allow access to AccessTokenManager busy."));
+								}
+								if (forceRefresh || _authEntity==null ||
+									_authEntity.expires_date!=null && _authEntity.expires_date.before(new Date()))
+								{
+									self.busy = true;
+									return null;
+								}
+								else return _authEntity; 
+						}}
+			
+						@Override
+						protected Response<AuthEntity> middleHandler(Response<AuthEntity> response) throws IOException 
+						{
+							self._authEntity = extractAuthEntity(response);
+							return 	Response.success(self._authEntity);
+						}
+					};
+		else 
+			{
+				busy = false;
+				return new SyncCall<AuthEntity>(_authEntity);
+			}
 	}
 	
-	private AuthEntity newAuthEntity() throws IOException{
-		Response<AuthEntity> response =  getOAuthService().getNewAccessToken(client_id, client_secret, user_name, password, getGrantType()).execute();
-		return extractAuthEntity(response);
-	}
 
+	
+	
 	
 	private AuthEntity extractAuthEntity(Response<AuthEntity> response) throws InvalidClientException, IOException{
 		if (response.isSuccessful())
@@ -81,28 +120,29 @@ class Error{
 		throw new AuthFaliException(response.code(), response.errorBody().string(),new HttpException(response)) ;
 
 	}
+	Boolean busy = false;
+
 	
-	//ОБновляет токен, используя refreshtoken или изначальные данные
-	public void RefreshToken() throws IOException{
-		Response<AuthEntity> response;
-		if (_authEntity!=null && _authEntity.refresh_token!=null){
-			response =  getOAuthService().getNewAccessToken(client_id, client_secret, _authEntity.refresh_token, "refresh_token").execute();
-			_authEntity = extractAuthEntity(response);
-		}
-		else 
-			_authEntity = newAuthEntity();
-	}
-	
-    public String  getAccessToken() throws IOException {
-    	return getAuthEntity().access_token;
+    public Call<String>  getAccessTokenAsync()  {
+    	 return  new ProxyConvertCall<AuthEntity, String>(
+    			 checkAndReturnAuthEntityAsync(),
+    			 authentity->authentity.access_token);
     }
 
+    public String getAccessToken() throws IOException{
+    	return getAccessTokenAsync().execute().body();
+    }
     
+    
+    public Call<String> getTokenTypeAsync() {
+        return  new ProxyConvertCall<AuthEntity, String>(
+        		checkAndReturnAuthEntityAsync(),
+        		authentity-> Character.toString(authentity.token_type.charAt(0)).toUpperCase() + authentity.token_type.substring(1)
+        		);
+        }
     public String getTokenType() throws IOException{
-        // OAuth requires uppercase Authorization HTTP header value for token type
-        return  Character.toString(getAuthEntity().token_type.charAt(0)).toUpperCase() + getAuthEntity().token_type.substring(1);
-}
-
+    	return getTokenTypeAsync().execute().body();
+    }
 
 
   

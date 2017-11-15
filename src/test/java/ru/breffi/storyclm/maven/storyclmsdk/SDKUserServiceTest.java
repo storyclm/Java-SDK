@@ -79,12 +79,12 @@ public class SDKUserServiceTest extends TestCase{
     	expectedCreateUser.id = actual.id;
     	ReflectionAssert.assertReflectionEquals(actual, (User)expectedCreateUser);
     	expectedUser = expectedCreateUser;
-    	clientConnector.getAccessTokenManager().getAuthEntity().access_token = "11";
+    	clientConnector.getAccessTokenManager().checkAndReturnAuthEntityAsync().execute().body().access_token = "11";
     	
     	
     	//попробуем аутентифицироваться новым пользователем
 		StoryCLMServiceConnector connectorForNewUser =  StoryCLMConnectorsGenerator.CreateStoryCLMServiceConnector("client_18_4", "1cdbbf4374634314bfd5607a79a0b5578d05130732dc4a37ac8c046525a27075",expectedCreateUser.username, expectedCreateUser.password, null);
-    	String accessToken = connectorForNewUser.getAccessTokenManager().getAuthEntity().access_token;
+    	String accessToken = connectorForNewUser.getAccessTokenManager().checkAndReturnAuthEntityAsync().execute().body().access_token;
       	assertNotNull(accessToken);
     	
     	expectedUser = updatedUser(expectedUser.id);

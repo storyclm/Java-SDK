@@ -59,6 +59,13 @@ public class StoryCLMContentService{
 		 return new ProxyCallResult<>(_storyCLMContentServiceRetrofit.AddPresentationUsers(presentationId,usersIds));
 	 }
 
+	 /**
+	  * Лишает группу пользователей прав доступа к презентации. Презентация должны быть активна. Ограничить доступ к презентации можно только тем пользователям, которые уже имеют доступ. В результате будет возвращен список всех пользователей, имеющих доступ к презентации. Используя этот список, можно проверить какие пользователи были удалены.
+	  * Для доступа к ресурсу должен быть включен scope "users".
+	  * @param presentationId - идентификатор презентации
+	  * @param usersIds - массив идентификаторов пользователей
+	  * @return - массив пользователй, имеющих доступ к презентации
+	  */
 	 public IAsyncResult<PresentationUser[]> RemovePresentationUsers(int presentationId, String[] usersIds)
 	 {
 		 return new ProxyCallResult<>(_storyCLMContentServiceRetrofit.RemovePresentationUsers(presentationId,usersIds));

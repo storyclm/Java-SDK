@@ -28,12 +28,15 @@ public class OAuthAuthenticator implements Authenticator {
 	
 	@Override
 	public Request authenticate(Route route, Response response) throws IOException {
+			  if(responseCount(response) >= 3) {
+				  return null;
+			  }
+			  
               if(responseCount(response) >= 2) {
                   // If both the original call and the call with refreshed token failed,
                   // it will probably keep failing, so don't try again.
-                  return null;
+                  accessTokenManager.checkAndReturnAuthEntityAsync(true).execute();
               }
-              accessTokenManager.RefreshToken();
               return response.request().newBuilder()
                               .header("Authorization", accessTokenManager.getTokenType() + " " + accessTokenManager.getAccessToken())
                               .build();

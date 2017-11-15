@@ -8,7 +8,7 @@ import retrofit2.http.POST;
 public interface OAuthService {
 		@FormUrlEncoded
 	    @POST("/connect/token")
-	    Call<AuthEntity> getNewAccessToken(
+	    Call<AuthEntity> getNewAuthEntity(
 	            @Field("client_id") String clientId,
 	            @Field("client_secret") String clientSecret,
 	            @Field("username") String userName,
@@ -17,7 +17,7 @@ public interface OAuthService {
 		
 		@FormUrlEncoded
 	    @POST("/connect/token")
-	    Call<AuthEntity> getNewAccessToken(
+	    Call<AuthEntity> getRefreshedAuthEntity(
 	            @Field("client_id") String clientId,
 	            @Field("client_secret") String clientSecret,
 	            @Field("refresh_token") String refresh_token,

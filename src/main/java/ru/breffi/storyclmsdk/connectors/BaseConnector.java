@@ -3,19 +3,24 @@ package ru.breffi.storyclmsdk.connectors;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
 import okhttp3.OkHttpClient;
+import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import ru.breffi.storyclmsdk.Calls.ProxyConvertCall;
 import ru.breffi.storyclmsdk.OAuth.AccessTokenManager;
 import ru.breffi.storyclmsdk.OAuth.OAuthAuthenticator;
 import ru.breffi.storyclmsdk.OAuth.OAuthInterceptor;
 import ru.breffi.storyclmsdk.TypeAdapters.MapDeserializerDoubleAsIntFix;
 import ru.breffi.storyclmsdk.TypeAdapters.StoryDateTypeAdapter;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 /**
  * Базовый коннектор, предоставляющий функциональность аутентицикации/авторизации, а также информацию о ней.
  * @author tselo
@@ -42,6 +47,18 @@ public abstract class BaseConnector {
 	public AccessTokenManager getAccessTokenManager(){
 		return this._accessTokenManager;
 	}
+	
+	protected Call<Integer> getClientId() {
+		return new ProxyConvertCall<String,Integer>(
+				getAccessTokenManager().getAccessTokenAsync(),
+				accesstoken->
+				{
+					byte[] decoded = Base64.getDecoder().decode(accesstoken.split("\\.")[1]);
+					String str = new String(decoded, StandardCharsets.UTF_8);
+					int res = Integer.parseInt(getGson().fromJson(str, JsonObject.class).get("client_id").getAsString().split("_")[1]);
+					return res;
+				});
+		}
 		
 	public BaseConnector(AccessTokenManager accessTokenManager, GsonBuilder gBuilder){
 		this._accessTokenManager = accessTokenManager;

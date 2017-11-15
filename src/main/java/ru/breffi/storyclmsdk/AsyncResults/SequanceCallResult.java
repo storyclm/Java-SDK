@@ -25,10 +25,8 @@ public abstract class SequanceCallResult<Tfirst,Tnext> implements IAsyncResult<T
 			Tfirst firstResult = firstCall.GetResult();
 			
 		//миддл метод
-			
-		
-				MiddleCallBackResult<Tnext> r =  MiddleCallBack(firstResult);
-				if (r.useResult) return r.result;
+			MiddleCallBackResult<Tnext> r =  MiddleCallBack(firstResult);
+			if (r.useResult) return r.result;
 		
 			
 		//второй вызов

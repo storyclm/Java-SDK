@@ -3,6 +3,7 @@ package ru.breffi.storyclmsdk;
 import ru.breffi.storyclmsdk.AsyncResults.IAsyncResult;
 import ru.breffi.storyclmsdk.AsyncResults.NullIf404;
 import ru.breffi.storyclmsdk.AsyncResults.ProxyCallResult;
+import ru.breffi.storyclmsdk.AsyncResults.ProxyConvertCallResult;
 import ru.breffi.storyclmsdk.Models.CreateUser;
 import ru.breffi.storyclmsdk.Models.Group;
 import ru.breffi.storyclmsdk.Models.Password;
@@ -33,7 +34,7 @@ public class StoryCLMUserService{
 	 }
 	 	
 	 public IAsyncResult<User> Exists(String username){
-		 return new NullIf404<>(new ProxyCallResult<User,User>(_storyCLMUserServiceRetrofit.Exists(username)));
+		 return new NullIf404<>(new ProxyConvertCallResult<User,User>(_storyCLMUserServiceRetrofit.Exists(username)));
 	 }
 
 	 public IAsyncResult<User> Get(String userId){

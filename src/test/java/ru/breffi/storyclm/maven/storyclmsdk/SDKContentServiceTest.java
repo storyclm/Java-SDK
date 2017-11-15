@@ -59,15 +59,23 @@ public class SDKContentServiceTest
     	assertEquals(slide.id, presentation.slides[0].id);
     	
     	PresentationUser[] users = contentService.GetPresentationUsers(presentationId).GetResult();
-    	String[] userIds = Arrays.asList(users).stream().map(x->x.id).filter(x->!x.equals(myUSer)).collect(Collectors.toList()).toArray(new String[0]);
-    	users = contentService.RemovePresentationUsers(presentationId, userIds).GetResult();
+    	
+    	//ПОльзователи из с доступом к презентации, не равные myUSer
+    	String[] removingUsers = Arrays.asList(users).stream().map(x->x.id).filter(x->!x.equals(myUSer)).collect(Collectors.toList()).toArray(new String[0]);
+    	//Удаляем всех пользователей (кроме нашего) из доступа к презентации  
+    	users = contentService.RemovePresentationUsers(presentationId, removingUsers).GetResult();
+    	//Должен остаться только наш пользователь в количестве 1
     	Assert.assertEquals(1, users.length);
-    	
+
+    	//Добавляем пользователей из нашего списка
     	users = contentService.AddPresentationUsers(presentationId, usersIds).GetResult();
+    	//Вместе с нашим их должно стать 2
     	Assert.assertEquals(2, users.length);
-    	Assert.assertTrue(Arrays.asList(users).stream().anyMatch(x->x.id.equals(userIds[0])));
     	
-    	users = contentService.RemovePresentationUsers(presentationId, userIds).GetResult();
+    	//один из пользователей презентации должен быть первым из списка 
+    	Assert.assertTrue(Arrays.asList(users).stream().anyMatch(x->x.id.equals(usersIds[0])));
+    	
+    	users = contentService.RemovePresentationUsers(presentationId, usersIds).GetResult();
     	Assert.assertEquals(1, users.length);
     	
     	users = contentService.AddPresentationUsers(presentationId, usersIds).GetResult();
