@@ -16,7 +16,11 @@ public class StoryCLMContentService{
 	{
 		 _storyCLMContentServiceRetrofit = storyCLMContentServiceRetrofit;
 	}
-		 
+	
+	/**
+	 * Возвращает информацию о клиентах, которым принадлежит пользователь.
+	 * @return
+	 */
 	 public IAsyncResult<Client[]> GetClients(){
 		 return new ProxyCallResult<>(_storyCLMContentServiceRetrofit.GetClients());
 	 }
@@ -26,7 +30,11 @@ public class StoryCLMContentService{
 		 return new ProxyCallResult<>(_storyCLMContentServiceRetrofit.GetClient(clientid));
 	 }
 	 
-	 
+	 /**
+	  * Возвращает информацию о презентации с идентификатором *presentationid*.
+	  * @param presentationid идентификатор презентации
+	  * @return 
+	  */
 	 public IAsyncResult<StoryPresentation> GetPresentation( int presentationid)
 	 {
 		 return new ProxyCallResult<>(_storyCLMContentServiceRetrofit.GetPresentation(presentationid));
