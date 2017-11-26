@@ -7,17 +7,23 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ServiceGenerator {
-	private static final String BASE_URL = "https://auth.storyclm.com/";
-
+	private String BASE_URL = "https://auth.storyclm.com/";
+	
+	
+	
   /*  private static Retrofit.Builder builder =
             new Retrofit.Builder()
                     .baseUrl(BASE_URL)
                     .addConverterFactory(GsonConverterFactory.create());
 */
+	public ServiceGenerator(){}
+	public ServiceGenerator(String baseUrl){
+		if (baseUrl!=null) this.BASE_URL = baseUrl;
+	}
 	
-	
-	private static Retrofit retrofit = null;
-    private static Retrofit getRetrofit (){
+	private Retrofit retrofit = null;
+	//private static Retrofit getRetrofit (String baseUrl){
+    private Retrofit getRetrofit (){
     	return (retrofit!=null)?
     				retrofit:
     					(retrofit=new Retrofit.Builder()
@@ -33,11 +39,6 @@ public class ServiceGenerator {
     }
 
 
-    public static <S> S createService(Class<S> serviceClass) {     
-    	
-    	
-    	
-    	
-    	return getRetrofit().create(serviceClass);    }
+    public <S> S createService(Class<S> serviceClass) { return getRetrofit().create(serviceClass); }
 }
 

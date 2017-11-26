@@ -88,7 +88,7 @@ import ru.breffi.storyclmsdk.Exceptions.*;
     
     StoryCLMServiceConnector clientConnector = StoryCLMConnectorsGenerator.GetStoryCLMServiceConnector("your_сlientId", "your_сlientSecret", "login", "password", null);
     AccessTokenManager accessTokenManager = clientConnector.getAccessTokenManager();
-    String access_token = accessTokenManager.getAuthEntity().access_token;
+    String access_token = accessTokenManager.checkAndReturnAuthEntityAsync().GetResult().access_token;
 
 ### Сервис доступа к контенту
 Коннектор, полученный при аутентификации на предыдущем шаге позволяет получить сервис доступа к контенту. Используется следующий метод:

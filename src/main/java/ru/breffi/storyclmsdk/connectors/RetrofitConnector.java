@@ -27,9 +27,9 @@ public class RetrofitConnector extends BaseConnector {
 	 
 	
 	 
-	 public RetrofitConnector(AccessTokenManager accessTokenManager, GsonBuilder gbuilder)
+	 public RetrofitConnector(AccessTokenManager accessTokenManager, GsonBuilder gbuilder, String apiUrl)
 	{
-		super(accessTokenManager,gbuilder);
+		super(accessTokenManager, gbuilder, apiUrl);
 	} 
 	 IStoryCLMTableServiceRetrofit _storyCLMService;
 	 IStoryCLMTableServiceRetrofit getStoryCLMService()

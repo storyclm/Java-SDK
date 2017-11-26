@@ -1,24 +1,16 @@
 package ru.breffi.storyclmsdk.connectors;
 
 
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Arrays;
-import java.util.function.Supplier;
-
 import com.google.gson.GsonBuilder;
 
-import retrofit2.Call;
 import ru.breffi.storyclmsdk.StoryCLMContentService;
 import ru.breffi.storyclmsdk.StoryCLMTableService;
 import ru.breffi.storyclmsdk.StoryCLMUserService;
 import ru.breffi.storyclmsdk.AsyncResults.IAsyncResult;
 import ru.breffi.storyclmsdk.AsyncResults.LinkedChainCallResult;
 import ru.breffi.storyclmsdk.AsyncResults.ProxyCallResult;
-import ru.breffi.storyclmsdk.AsyncResults.SequanceCallResult;
-import ru.breffi.storyclmsdk.Calls.ProxyConvertCall;
-import ru.breffi.storyclmsdk.Calls.SyncCall;
-import ru.breffi.storyclmsdk.Exceptions.TableNotFoundException;
 import ru.breffi.storyclmsdk.Models.ApiTable;
 import ru.breffi.storyclmsdk.OAuth.AccessTokenManager;
 import ru.breffi.storyclmsdk.retrofitservices.IStoryCLMContentServiceRetrofit;
@@ -35,9 +27,9 @@ public class StoryCLMServiceConnector extends BaseConnector{
 	final private StoryCLMContentService contentService;
 	final private StoryCLMUserService userService;
 
-	public StoryCLMServiceConnector(AccessTokenManager accessTokenManager, GsonBuilder gBuilder) 
+	public StoryCLMServiceConnector(AccessTokenManager accessTokenManager, GsonBuilder gBuilder, String apiBaseUrl) 
 	{
-		super(accessTokenManager,gBuilder);
+		super(accessTokenManager,gBuilder, apiBaseUrl);
 		_storyCLMService = getStoryCLMRetrofit().create(IStoryCLMTableServiceRetrofit.class);
 		contentService = new StoryCLMContentService( getStoryCLMRetrofit().create(IStoryCLMContentServiceRetrofit.class));
 		userService = new StoryCLMUserService(getStoryCLMRetrofit().create(IStoryCLMUserServiceRetrofit.class));

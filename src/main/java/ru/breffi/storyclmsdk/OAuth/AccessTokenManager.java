@@ -30,16 +30,23 @@ class Error{
 		return !(user_name == null || user_name.isEmpty() || password==null || password.isEmpty())? "password" : "client_credentials";
 	}
 
+ private ServiceGenerator serviceGenerator;
+ 
+ 
  public AccessTokenManager(String client_id,String client_secret, String user_name, String password){
+	 this(client_id,client_secret, user_name, password, null);
+ }
+ public AccessTokenManager(String client_id,String client_secret, String user_name, String password, String baseUrl){
 	 this.client_id = client_id;
 	 this.client_secret = client_secret;
 	 this.user_name = user_name;
 	 this.password = password;
+	 this.serviceGenerator = new ServiceGenerator(baseUrl);
  }
-    private static OAuthService _oauthService;
-	private static OAuthService getOAuthService(){
+    private OAuthService _oauthService;
+	private OAuthService getOAuthService(){
 		if (_oauthService == null){
-			_oauthService = ServiceGenerator.createService(OAuthService.class);
+			_oauthService = serviceGenerator.createService(OAuthService.class);
 		}
 		return _oauthService;
 	}
@@ -60,8 +67,11 @@ class Error{
 		Call<AuthEntity> call = null;
 		if (_authEntity == null) 
 			call = (getOAuthService().getNewAuthEntity(client_id, client_secret, user_name, password, getGrantType()));
-		else if (forceRefresh || (_authEntity.expires_date!=null) && _authEntity.expires_date.before(new Date()))
-			call = getOAuthService().getRefreshedAuthEntity(client_id, client_secret, _authEntity.refresh_token,"refresh_token");
+		else if (forceRefresh || authExpired()) 
+			if (_authEntity.refresh_token != null)
+				call = getOAuthService().getRefreshedAuthEntity(client_id, client_secret, _authEntity.refresh_token,"refresh_token");
+			else 
+				call = (getOAuthService().getNewAuthEntity(client_id, client_secret, user_name, password, getGrantType()));
 		if (call != null)
 			return new ProxyCheckerCall<AuthEntity>(call)
 					{
@@ -99,7 +109,10 @@ class Error{
 	
 
 	
-	
+	private Boolean authExpired(){
+		//return false;
+		return  (_authEntity.expires_date!=null) && _authEntity.expires_date.before(new Date());
+	}
 	
 	private AuthEntity extractAuthEntity(Response<AuthEntity> response) throws InvalidClientException, IOException{
 		if (response.isSuccessful())

@@ -40,6 +40,26 @@ public class SDKContentServiceTest
      * Rigourous Test :-)
      * @throws Exception 
      */
+	
+	 public void testStagingContentService() throws Exception
+	 {
+			StoryCLMServiceConnector clientConnector =  StoryCLMConnectorsGenerator.CreateStoryCLMServiceConnector(
+					"client_1_5", 
+					"54bfffdf6187400a9a1602dd375fd9d6229c390f1b6f4d4f94efcbd0813e39bc",
+					null,null, null,
+					"https://staging-auth.storyclm.com/",
+					"https://staging-api.storyclm.com/v1/");;
+	    	StoryCLMContentService contentService = clientConnector.GetContentService();
+	    	Client[] clients = contentService.GetClients().GetResult();
+	    	
+	    	assertTrue(clients.length>0);
+	    	
+	    	Thread.sleep(100000);
+	    	Client client  = contentService.GetClient(1).GetResult();
+	    	assertEquals(client.id, 1);
+	 }
+	
+	
     public void testContentService() throws Exception
     {
     	StoryCLMServiceConnector clientConnector =  StoryCLMConnectorsGenerator.CreateStoryCLMServiceConnector("client_18_4", "1cdbbf4374634314bfd5607a79a0b5578d05130732dc4a37ac8c046525a27075","tselofan1@yandex.ru", "jTL96D", null);;

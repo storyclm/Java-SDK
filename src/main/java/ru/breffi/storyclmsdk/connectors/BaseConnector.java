@@ -27,11 +27,13 @@ import java.util.Base64;
  *	Публичные свойства класса позволяют разработчикам работать с другими ресурсами, использующих аутентификацию StoryCLM 
  */
 public abstract class BaseConnector {
-	public static final String API_BASE_URL = "https://api.storyclm.com/v1/";
+	private final String API_BASE_URL;// = "https://api.storyclm.com/v1/";
 	protected Gson _gson;
 	protected final AccessTokenManager _accessTokenManager;
 	
 	OkHttpClient.Builder _okHttpClientBuilder;
+	
+	
 	/**
 	 * предоставляет OkHttpClient.Builder  для  построения OkHttpClient с включенной функциональностью аутентификации/авторизации к StoryCLM
 	 * @return
@@ -60,12 +62,13 @@ public abstract class BaseConnector {
 				});
 		}
 		
-	public BaseConnector(AccessTokenManager accessTokenManager, GsonBuilder gBuilder){
+	public BaseConnector(AccessTokenManager accessTokenManager, GsonBuilder gBuilder, String api_base_url){
 		this._accessTokenManager = accessTokenManager;
 		this._gson = gBuilder==null?_defaultGson:getGson(gBuilder);
-		
+		this.API_BASE_URL = api_base_url;
 	}
 	
+
 	
 	private static OkHttpClient.Builder getHttpClientBuilder(AccessTokenManager accessTokenManager ){
 		OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
