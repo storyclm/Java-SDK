@@ -1,7 +1,6 @@
 package ru.breffi.storyclmsdk.AsyncResults;
 
 import ru.breffi.storyclmsdk.OnResultCallback;
-import ru.breffi.storyclmsdk.Calls.SyncCall;
 import ru.breffi.storyclmsdk.Exceptions.AsyncResultException;
 import ru.breffi.storyclmsdk.Exceptions.AuthFaliException;
 
@@ -12,28 +11,28 @@ import ru.breffi.storyclmsdk.Exceptions.AuthFaliException;
  * Лучшей альтернативой было бы построение параллельных запросов
  * @author tselo
  */
-public class LinkedChainCallResult<Tprev, Tcurrent> implements IAsyncResult<Tcurrent> {
+public class FluentCallResult<Tprev, Tcurrent> implements IAsyncResult<Tcurrent> {
 
 	IAsyncResult<Tprev> prevReq;
 
 	CallCreator<Tprev,IAsyncResult<Tcurrent>> creator;
 
-	public LinkedChainCallResult(IAsyncResult<Tprev> prevReq, CallCreator<Tprev,IAsyncResult<Tcurrent>>creator){
+	public FluentCallResult(IAsyncResult<Tprev> prevReq, CallCreator<Tprev,IAsyncResult<Tcurrent>>creator){
 		this.prevReq = prevReq;
 		this.creator = creator;
 	}
 	
-	public <Tnext> LinkedChainCallResult<Tcurrent, Tnext> Then(CallCreator<Tcurrent,IAsyncResult<Tnext>> creator){
-		return new LinkedChainCallResult<Tcurrent, Tnext>(this,creator); 
+	public <Tnext> FluentCallResult<Tcurrent, Tnext> Then(CallCreator<Tcurrent,IAsyncResult<Tnext>> creator){
+		return new FluentCallResult<Tcurrent, Tnext>(this,creator); 
 	}
 	
-	public <Tnext> LinkedChainCallResult<Tcurrent, Tnext> ThenResult(CallCreator<Tcurrent,Tnext> syncResultCreator){
-		return Then(current->new ProxyCallResult<Tnext>(new SyncCall<Tnext>(syncResultCreator.Create(current))));
+	public <Tnext> FluentCallResult<Tcurrent, Tnext> ThenResult(CallCreator<Tcurrent,Tnext> syncResultCreator){
+		return Then(current->new ValueAsyncResult<Tnext>(syncResultCreator.Create(current)));
 	}
 	
 	
-	public static <T> LinkedChainCallResult<Void, T> AtFirst(IAsyncResult<T> firstResult){
-		return new LinkedChainCallResult<>(null, (n)->firstResult);
+	public static <T> FluentCallResult<Void, T> AtFirst(IAsyncResult<T> firstResult){
+		return new FluentCallResult<>(null, (n)->firstResult);
 	}
 	
 	@Override

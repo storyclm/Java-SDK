@@ -7,10 +7,10 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class SyncCall<T> implements Call<T> {
+public class ValueCall<T> implements Call<T> {
 
 	T value;
-	public SyncCall(T value){
+	public ValueCall(T value){
 		this.value = value;
 	}
 	@Override
@@ -39,7 +39,7 @@ public class SyncCall<T> implements Call<T> {
 
 	@Override
 	public Call<T> clone() {
-			return new SyncCall<T>(value);
+			return new ValueCall<T>(value);
 	}
 
 	@Override

@@ -11,7 +11,7 @@ import retrofit2.HttpException;
 import retrofit2.Response;
 import ru.breffi.storyclmsdk.Calls.ProxyCheckerCall;
 import ru.breffi.storyclmsdk.Calls.ProxyConvertCall;
-import ru.breffi.storyclmsdk.Calls.SyncCall;
+import ru.breffi.storyclmsdk.Calls.ValueCall;
 import ru.breffi.storyclmsdk.Exceptions.AuthFaliException;
 import ru.breffi.storyclmsdk.Exceptions.InvalidClientException;
 
@@ -103,7 +103,7 @@ class Error{
 		else 
 			{
 				busy = false;
-				return new SyncCall<AuthEntity>(_authEntity);
+				return new ValueCall<AuthEntity>(_authEntity);
 			}
 	}
 	

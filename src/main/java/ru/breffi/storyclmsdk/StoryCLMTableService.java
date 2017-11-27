@@ -127,7 +127,7 @@ public class StoryCLMTableService<T> {
 	  * Оба параметра опциональны
 	  * В слуае не указания porion будет использовать значение по умолчанию указанное на сервере
 	  */
-	 public IAsyncResult<List<T>> FindAll(final String query, final Integer portion) throws AsyncResultException, AuthFaliException{
+	 public IAsyncResult<List<T>> FindAll(final String query, final Integer portion){
 		 final List<T> result = new ArrayList<T>();
 		 return new SequanceChainCallResult<List<T>>(null){
 				@Override

@@ -9,7 +9,7 @@ import ru.breffi.storyclmsdk.StoryCLMContentService;
 import ru.breffi.storyclmsdk.StoryCLMTableService;
 import ru.breffi.storyclmsdk.StoryCLMUserService;
 import ru.breffi.storyclmsdk.AsyncResults.IAsyncResult;
-import ru.breffi.storyclmsdk.AsyncResults.LinkedChainCallResult;
+import ru.breffi.storyclmsdk.AsyncResults.FluentCallResult;
 import ru.breffi.storyclmsdk.AsyncResults.ProxyCallResult;
 import ru.breffi.storyclmsdk.Models.ApiTable;
 import ru.breffi.storyclmsdk.OAuth.AccessTokenManager;
@@ -52,7 +52,7 @@ public class StoryCLMServiceConnector extends BaseConnector{
 	}
 	
 	public <T> IAsyncResult<StoryCLMTableService<T>> GetTableService(Type entityType, String tableName){
-		return LinkedChainCallResult
+		return FluentCallResult
 				.AtFirst(new ProxyCallResult<>(getClientId()))
 				.Then(clientid->new ProxyCallResult<>(_storyCLMService.GetTables(clientid)))
 				.<StoryCLMTableService<T>>ThenResult(tables-> Arrays.stream(tables)
@@ -69,7 +69,7 @@ public class StoryCLMServiceConnector extends BaseConnector{
 	}
 	 
 	public IAsyncResult<ApiTable[]> GetTables() {	
-		return LinkedChainCallResult
+		return FluentCallResult
 		.AtFirst(new ProxyCallResult<>(getClientId()))
 		.Then(clientid->new ProxyCallResult<>(_storyCLMService.GetTables(clientid)));
 				
