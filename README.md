@@ -801,8 +801,30 @@ profiles = StoryCLMProfileService.Find( "([age][lt][22][or][age][gt][30])[and]([
 		
 ```
 
+## Работа с асинхронными методами
+Для облегчения работы с асинхронным результатом запросов существует несколько классов:
 
+#### class FluentCallResult<Tprev, Tcurrent> implements IAsyncResult\<Tcurrent> 
+Класс для последовательного выполнения нескольких асинхронных вызовов. Каждый следующий вызов имеет доступ к результатам предыдущего
 
+**Пример:**
+```java
+StoryCLMUserService userService = clientConnector.GetUserService();
+FluentCallResult    
+.AtFirst(userService.Exists("username"))
+.Then(user->userService.UpdatePassword(user.id, "newpassword"));
+```
+В примере выше сначала асинхронно вызывается поиск пользователя по имени, по полученным данным обновляется пароль.
 
+#### class ValueAsyncResult\<T> implements IAsyncResult\<T> 
+Класс используется для возвращения простого значения в асинхронном виде. Используется в купе с другими асинхронными классами для сохранения единообразного асинхронного интерфейса
 
-
+**Пример:**
+```java
+StoryCLMUserService userService = clientConnector.GetUserService();
+if (someObject.userId==null)
+    return FluentCallResult   
+            .AtFirst(userService.Exists("username"))
+            .ThenResult(user->someObject.userId = user.id);
+else return new ValueAsyncResult(someObject.userId);
+```
