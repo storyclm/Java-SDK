@@ -812,7 +812,9 @@ profiles = StoryCLMProfileService.Find( "([age][lt][22][or][age][gt][30])[and]([
 StoryCLMUserService userService = clientConnector.GetUserService();
 FluentCallResult    
 .AtFirst(userService.Exists("username"))
-.Then(user->userService.UpdatePassword(user.id, "newpassword"));
+.Then(user->userService.UpdatePassword(user.id, "newpassword"))
+.OnFail(throwable-> Toast.makeText(getBaseContext(), "Ошибка сети. Повторите операцию. ", Toast.LENGTH_LONG).show())
+.OnSuccess((v)->finish());
 ```
 В примере выше сначала асинхронно вызывается поиск пользователя по имени, по полученным данным обновляется пароль.
 

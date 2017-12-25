@@ -97,6 +97,7 @@ class Error{
 						protected Response<AuthEntity> middleHandler(Response<AuthEntity> response) throws IOException 
 						{
 							self._authEntity = extractAuthEntity(response);
+							self.busy = false;
 							return 	Response.success(self._authEntity);
 						}
 					};

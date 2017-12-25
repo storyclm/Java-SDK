@@ -4,7 +4,7 @@
 
   <groupId>com.storyclm</groupId>
   <artifactId>storyclmsdk</artifactId>
-  <version>1.0.4</version>
+  <version>1.0.5</version>
   <packaging>jar</packaging>
 
   <name>storyclmsdk</name>
@@ -22,6 +22,12 @@
   </properties>
 
   <dependencies>
+  <dependency>
+   <artifactId>guava</artifactId>
+   <groupId>com.google.guava</groupId>
+   <type>jar</type>
+   <version>14.0.1</version>
+</dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>

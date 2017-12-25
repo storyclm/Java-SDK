@@ -16,12 +16,31 @@ public class FluentCallResult<Tprev, Tcurrent> implements IAsyncResult<Tcurrent>
 	IAsyncResult<Tprev> prevReq;
 
 	CallCreator<Tprev,IAsyncResult<Tcurrent>> creator;
+	FailCallback failcallback = null;
 
-	public FluentCallResult(IAsyncResult<Tprev> prevReq, CallCreator<Tprev,IAsyncResult<Tcurrent>>creator){
+	/**
+	 * Первый вызов fluentapi для асинхронных вызовов (IAsyncResult[T]).
+	 * Результат вызова firstResult передается следущему звену с помощью метода Then
+	 * @param firstResult асинхронный результат.
+	 * @return Асинхронный вызов, который можно использовать для непосредственно исполнения, либо для построения цепочки последовательных асинхронных вызовов  
+	 */
+	public static <T> FluentCallResult<Void, T> AtFirst(IAsyncResult<T> firstResult){
+		return new FluentCallResult<>(null, (n)->firstResult);
+	}
+	
+	
+	
+	protected FluentCallResult(IAsyncResult<Tprev> prevReq, CallCreator<Tprev,IAsyncResult<Tcurrent>>creator){
 		this.prevReq = prevReq;
 		this.creator = creator;
 	}
 	
+	/**
+	 * Очередной вызов fluentapi для последовательности асинхронных вызовов
+	 * Результат вызова текущего IAsyncResult[Tсurrent] в функциональный интерфейс CallCreator
+	 * @param creator функциональный интерфейс для создания следующего асинхронного вызова, принимающий на вход результаты работы предыдущего вызова
+	 * @return @return Асинхронный вызов, который можно использовать для непосредственно исполнения, либо для построения цепочки последовательных асинхронных вызовов
+	 */
 	public <Tnext> FluentCallResult<Tcurrent, Tnext> Then(CallCreator<Tcurrent,IAsyncResult<Tnext>> creator){
 		return new FluentCallResult<Tcurrent, Tnext>(this,creator); 
 	}
@@ -30,9 +49,22 @@ public class FluentCallResult<Tprev, Tcurrent> implements IAsyncResult<Tcurrent>
 		return Then(current->new ValueAsyncResult<Tnext>(syncResultCreator.Create(current)));
 	}
 	
+	public FluentCallResult<Tprev, Tcurrent> OnFail(FailCallback failcallback){
+		this.failcallback = failcallback;
+		return this;
+	}
 	
-	public static <T> FluentCallResult<Void, T> AtFirst(IAsyncResult<T> firstResult){
-		return new FluentCallResult<>(null, (n)->firstResult);
+	public void OnSuccess(SuccessCallback<Tcurrent> successcallback){
+		this.OnResult(new OnResultCallback<Tcurrent>() {
+			@Override
+			public void OnSuccess(Tcurrent result) {
+				successcallback.OnSuccess(result);
+			}
+			@Override
+			public void OnFail(Throwable t) {
+				if (failcallback!=null) failcallback.OnFail(t);
+			}
+		});
 	}
 	
 	@Override
@@ -51,12 +83,12 @@ public class FluentCallResult<Tprev, Tcurrent> implements IAsyncResult<Tcurrent>
 				@Override
 				public void OnSuccess(Tprev result) {
 					creator.Create(result).OnResult(callback);
-					
 				}
 	
 				@Override
 				public void OnFail(Throwable t) {
-					callback.OnFail(t);
+					if (failcallback!=null) failcallback.OnFail(t);
+					else callback.OnFail(t);
 					
 				}
 			});

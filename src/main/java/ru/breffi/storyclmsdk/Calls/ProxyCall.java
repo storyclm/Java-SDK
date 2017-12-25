@@ -7,17 +7,22 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+
+/*
+ * Позволяет производить дополнительные преобразования над результатом используя метод middleHandler.  
+ */
 public abstract class ProxyCall<Tin, Tout> implements Call<Tout> {
 
+	/*
+	 * Абстрактный метод - вызывется в момент получения базового ответа Response.
+	 */
 	protected abstract Response<Tout> middleHandler(Response<Tin> response) throws IOException;
-	
 	
 	Call<Tin> innerCall;
 	public ProxyCall(Call<Tin> call)
 	{
 		innerCall = call;
 	}
-	
 	
 	@Override
 	public Response<Tout> execute() throws IOException {
@@ -54,7 +59,6 @@ public abstract class ProxyCall<Tin, Tout> implements Call<Tout> {
 	@Override
 	public void cancel() {
 		innerCall.cancel();
-		
 	}
 
 	@Override

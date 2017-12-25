@@ -3,6 +3,8 @@ package ru.breffi.storyclmsdk.connectors;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import com.google.common.io.BaseEncoding;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -21,6 +23,7 @@ import ru.breffi.storyclmsdk.TypeAdapters.StoryDateTypeAdapter;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+
 /**
  * Базовый коннектор, предоставляющий функциональность аутентицикации/авторизации, а также информацию о ней.
  * @author tselo
@@ -55,7 +58,12 @@ public abstract class BaseConnector {
 				getAccessTokenManager().getAccessTokenAsync(),
 				accesstoken->
 				{
-					byte[] decoded = Base64.getDecoder().decode(accesstoken.split("\\.")[1]);
+					
+					
+					
+					byte[] decoded = BaseEncoding.base64().decode(accesstoken.split("\\.")[1]);
+					
+					//byte[] decoded = Base64.getDecoder().decode(accesstoken.split("\\.")[1]);
 					String str = new String(decoded, StandardCharsets.UTF_8);
 					int res = Integer.parseInt(getGson().fromJson(str, JsonObject.class).get("client_id").getAsString().split("_")[1]);
 					return res;
