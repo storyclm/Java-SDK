@@ -13,6 +13,7 @@ import junit.framework.TestSuite;
 import ru.breffi.storyclmsdk.OnResultCallback;
 import ru.breffi.storyclmsdk.StoryCLMConnectorsGenerator;
 import ru.breffi.storyclmsdk.StoryCLMContentService;
+import ru.breffi.storyclmsdk.AsyncResults.FluentCallResult;
 import ru.breffi.storyclmsdk.AsyncResults.IAsyncResult;
 import ru.breffi.storyclmsdk.Models.Client;
 import ru.breffi.storyclmsdk.Models.StoryContentPackage;
@@ -59,7 +60,35 @@ public class SDKContentServiceTest
 	    	assertEquals(client.id, 1);
 	 }
 	
-	
+	 public void testFluentAsyncApi() throws Exception
+	 {
+			StoryCLMServiceConnector clientConnector =  StoryCLMConnectorsGenerator.CreateStoryCLMServiceConnector(
+					"client_1_5", 
+					"54bfffdf6187400a9a1602dd375fd9d6229c390f1b6f4d4f94efcbd0813e39bc",
+					null,null, null,
+					"https://staging-auth.storyclm.com/",
+					"https://staging-api.storyclm.com/v1/");
+			clientConnector =  StoryCLMConnectorsGenerator.CreateStoryCLMServiceConnector("client_18_4", "1cdbbf4374634314bfd5607a79a0b5578d05130732dc4a37ac8c046525a27075","tselofan1@yandex.ru", "jTL96D", null);
+	    	StoryCLMContentService contentService = clientConnector.GetContentService();
+	    	AsyncResultContainer<Boolean> res = new AsyncResultContainer<Boolean>();
+		    FluentCallResult
+		    			.AtFirst(contentService.GetClients())
+		    			.Then(clients->{
+		    				assertTrue(clients.length>0); 
+		    				return contentService.GetClient(clients[0].id);
+		    				})
+		    			.ThenResult(client->client.id)
+		    			.OnFail(t->{
+		 //   				t.printStackTrace(null);
+		    				assertTrue(false);})
+		    			.OnSuccess(id->{
+		    				assertTrue(id !=null);
+		    				res.Completed();
+		    			});
+	    while(!res.completed) 
+	    	Thread.sleep(1000);
+	    	
+	 }
     public void testContentService() throws Exception
     {
     	StoryCLMServiceConnector clientConnector =  StoryCLMConnectorsGenerator.CreateStoryCLMServiceConnector("client_18_4", "1cdbbf4374634314bfd5607a79a0b5578d05130732dc4a37ac8c046525a27075","tselofan1@yandex.ru", "jTL96D", null);;

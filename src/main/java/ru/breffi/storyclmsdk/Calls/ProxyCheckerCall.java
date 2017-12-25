@@ -9,7 +9,6 @@ public abstract class ProxyCheckerCall<T> extends ProxyCall<T,T>{
 
 	public ProxyCheckerCall(Call<T> call) {
 		super(call);
-		// TODO Auto-generated constructor stub
 	}
 	
 	public abstract T returnThisIfNotNull();

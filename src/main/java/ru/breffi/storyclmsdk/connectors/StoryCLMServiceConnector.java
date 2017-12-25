@@ -55,17 +55,13 @@ public class StoryCLMServiceConnector extends BaseConnector{
 		return FluentCallResult
 				.AtFirst(new ProxyCallResult<>(getClientId()))
 				.Then(clientid->new ProxyCallResult<>(_storyCLMService.GetTables(clientid)))
-				.<StoryCLMTableService<T>>ThenResult(tables-> Arrays.stream(tables)
-						.filter(t -> t.name.equals(tableName))
-				        .findAny()
-				       //.map(a->GetTableService<T>(entityType, a.id))
-				         .map(a->new StoryCLMTableService<T>(entityType, _storyCLMService, getGson(), a.id))
-				        .orElse(null));
-				        
-							
-							
-							
-		
+				.<StoryCLMTableService<T>>ThenResult(tables->{
+					int i=0;
+					for(;i<tables.length;i++)
+						if (tables[i].name.equals(tableName)) break;
+					if (i>=tables.length) return null;
+					return new StoryCLMTableService<T>(entityType, _storyCLMService, getGson(), tables[i].id);
+				});
 	}
 	 
 	public IAsyncResult<ApiTable[]> GetTables() {	
